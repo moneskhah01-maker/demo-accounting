@@ -8,7 +8,7 @@ Live: https://demo.mouneskhah.com (noindex)
 
 | File | What it is |
 | --- | --- |
-| `index.html` | The whole demo: one self-contained page (HTML, CSS, JavaScript, fonts and images embedded, no external requests). Persian, RTL. This is the version to serve in production (SHA-256 `ba74474af2167279022fe47ff4fcb011ea283949fd2e930beb3210c24a3b8e5d`, updated 2026-11-11; the previous version was `4935be71ec68e585cbbb16dd5626abc01bd4ee98810aae86b7d879be8d3b4a64`). |
+| `index.html` | The whole demo: one self-contained page (HTML, CSS, JavaScript, fonts and images embedded; the only external request is the SheetJS library from cdnjs, loaded when a real Excel file is imported). Persian, RTL. This is the version to serve in production (SHA-256 `a46bde2454deece2e79138167284e5667d2bc493bb3afe1999edb60b23b05f01`, updated 2026-11-15; the previous version was `ba74474af2167279022fe47ff4fcb011ea283949fd2e930beb3210c24a3b8e5d`). |
 | `deploy/nginx-demo.mouneskhah.com.conf` | The nginx site that serves it: static files from `/var/www/demo`, Let's Encrypt certificate, `X-Robots-Tag: noindex, nofollow`, `Cache-Control: no-cache`. |
 
 ## Run locally
