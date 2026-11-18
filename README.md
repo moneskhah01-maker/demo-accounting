@@ -8,9 +8,27 @@ Live: https://demo.mouneskhah.com (noindex)
 
 | File | What it is |
 | --- | --- |
-| `index.html` | The whole demo: one self-contained page (HTML, CSS, JavaScript, fonts and images embedded; the only external request is the SheetJS library from cdnjs, loaded when a real Excel file is imported). Persian, RTL. This is the version to serve in production: v10, SHA-256 `b4336ed8d17f7acf842a76af74968b62f9a9f86cb6aead413f8d2899bb3fe0e7`, updated 2026-11-18. The previous version, v9, was `a46bde2454deece2e79138167284e5667d2bc493bb3afe1999edb60b23b05f01`. |
+| `index.html` | The whole demo: one self-contained page (HTML, CSS, JavaScript, fonts and images embedded; the only external request is the SheetJS library from cdnjs, loaded when a real Excel file is imported). Persian, RTL. This is the version to serve in production: v11, SHA-256 `ee57372adc09ceec5dadeb08149a96691d47b66fd42d3e1e31ef2706f1333851`, updated 2026-11-18. The previous version, v10, was `b4336ed8d17f7acf842a76af74968b62f9a9f86cb6aead413f8d2899bb3fe0e7`. |
 | `deploy/nginx-demo.mouneskhah.com.conf` | The nginx site that serves it: static files from `/var/www/demo`, Let's Encrypt certificate, `X-Robots-Tag: noindex, nofollow`, `Cache-Control: no-cache`. It includes `snippets/lajvard-api.conf`. |
 | `deploy/nginx-lajvard-api.snippet.conf` | `/api/` on the same origin, proxied to the Lajvard backend at `127.0.0.1:4317`, with rate limits. The zones `lajvard_api` and `lajvard_login` are in `/etc/nginx/conf.d/lajvard.conf`. Only `/api/` is exposed, so the sandbox simulator is not. |
+
+## Settings (v11)
+
+«تنظیمات» is a page of its own. It is about the system: the theme is only one card of it.
+
+- **اتصال به سامانه مودیان:** the one place where the keys are entered. These are the memory ID from the taxpayer portal, the private key and the signing certificate of a licensed intermediate CA. The technical instruction of Ordibehesht 1405 puts that certificate in x5c on every token and invoice. The keys can arrive three ways:
+  1. key and certificate files;
+  2. one PFX/P12 file with its password;
+  3. a key made on the server with a certificate request (CSR) for the CA, after which the issued certificate is uploaded.
+
+  The card shows the certificate details (national ID, validity, issuer), the public key for the portal and the last connection test. In the sandbox there is also «ثبت در کارپوشه آزمایشی».
+- **سرور لاجورد:** the sign-in state.
+- **ارسال و همگام‌سازی:** the server's own sync interval, Article 9 deadline, retries and reference windows.
+- **مودی و مجوز:** the locked identity, VAT liability (saved on the server) and the licensed patterns.
+- **بانک شناسه کالا و واحدها**
+- **ظاهر**
+
+The profile page shows the keys as a summary; its button opens this page.
 
 ## The Lajvard server (v10)
 

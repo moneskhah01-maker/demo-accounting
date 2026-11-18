@@ -1459,6 +1459,19 @@ button.pdc:hover{background:var(--soft-2)}
 .pg-prof .mo-k{display:flex;gap:12px;padding:16px;border:1px solid var(--line);border-radius:12px;min-width:0}
 .pg-prof .mo-k .lat,.pg-prof .mo-k .n{font-size:15px;line-height:24px}
 .pg-prof .mo-s{display:flex;align-items:center;gap:8px;padding:0 24px 24px;flex-wrap:wrap}
+.pg-set .set-ed{margin:0 24px 16px;padding:16px;border:1px solid var(--line);border-radius:12px}
+.pg-set .set-m{display:flex;width:100%;max-width:560px}
+.pg-set .set-m button{flex:1}
+.pg-set .df0{display:flex;gap:8px;margin-top:16px}
+.pg-set .needb .btn{align-self:flex-start}
+.pg-set textarea.csr{width:100%;margin-top:12px;font:12px/18px ui-monospace,Consolas,monospace;direction:ltr;text-align:left;border:1px solid var(--line-2);border-radius:8px;padding:8px;background:var(--soft-2);color:var(--ink);resize:vertical}
+.pg-set .set-guide{margin:0 24px 24px;padding:12px 16px;border-radius:12px;background:var(--soft)}
+.pg-set .set-guide summary{cursor:pointer;display:flex;align-items:center;gap:8px;list-style:none}
+.pg-set .set-guide summary::-webkit-details-marker{display:none}
+.pg-set .set-guide ol{margin:12px 0 8px;padding-inline-start:20px;display:flex;flex-direction:column;gap:6px}
+.pg-set .ell2{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pg-set .seg{flex-wrap:wrap;height:auto;min-height:32px}
+@media (max-width:719px){.pg-set .set-ed,.pg-set .set-guide{margin-inline:16px}.pg-set .set-m button{padding:0 6px;font-size:12px}}
 .pg-prof .ptl.on{border-color:var(--pri-line)}
 .pg-prof .pta{align-items:center}
 .pg-prof #patc .ptl{flex-direction:column;align-items:stretch;gap:10px}
@@ -1779,7 +1792,7 @@ function dialog(inner, { cls = '', wcls = '', onClose, label = 'پنجره' } = 
 /* ---------- pages and router ---------- */
 const Pages = {};
 const page = (name, def) => { Pages[name] = def; };
-const ROUTES = ['dashboard', 'invoices', 'invoice', 'new-invoice', 'rejected', 'profile', 'parties', 'items', 'design-system'];
+const ROUTES = ['dashboard', 'invoices', 'invoice', 'new-invoice', 'rejected', 'profile', 'parties', 'items', 'settings', 'design-system'];
 // a click on an invoice opens its full page; invoice 1047 is still waiting in rejection handling
 function openInv(no) { if (no === 1047 && !S.fixed1047) return go('rejected'); S.invOpen = no; go('invoice', { inv: no }); }
 let current = null, cleanup = null;
@@ -1867,7 +1880,7 @@ function shell() {
     if (k === 'sales') { const s = $('#subs'); const open = s.style.height !== '0px'; setSubs(!open); return; }
     if (k === 'moadian') return go('invoices', { filter: 'fail' });
     if (k === 'help') { closeNav(); return Guide.on ? Guide.stop() : Guide.start(); }
-    if (k === 'set') return themeMenu(b);
+    if (k === 'set') return go('settings');
     const names = { pay: 'بخش دریافت‌ها' };
     notInDemo(names[k]);
   });
@@ -1926,7 +1939,7 @@ function setTheme(t) {
 function themeIcon() { const b = $('#theme'); if (b) b.innerHTML = ic(isDark() ? 'sun' : 'moon', 16); }
 function themeMenu(anchor) {
   const cur = store.get('lj-theme') || 'system';
-  menu(anchor, { head: 'تم رابط', items: [{ label: 'روشن', icon: 'sun', checked: cur === 'light', fn: () => setTheme('light') }, { label: 'تیره', icon: 'moon', checked: cur === 'dark', fn: () => setTheme('dark') }, { label: 'مطابق سیستم', icon: 'sliders', checked: cur === 'system', fn: () => setTheme('system') }, ...(SRV.available() ? ['-', { label: SRV.on() ? 'سرور لاجورد' : 'ورود به سرور لاجورد', icon: 'send', fn: () => SRV.open() }] : [])] });
+  menu(anchor, { head: 'تم رابط', items: [{ label: 'روشن', icon: 'sun', checked: cur === 'light', fn: () => setTheme('light') }, { label: 'تیره', icon: 'moon', checked: cur === 'dark', fn: () => setTheme('dark') }, { label: 'مطابق سیستم', icon: 'sliders', checked: cur === 'system', fn: () => setTheme('system') }] });
 }
 
 /* ---------- command palette with the assistant ---------- */
@@ -1936,7 +1949,7 @@ const Palette = (() => {
     ['dashboard', 'grid', 'داشبورد', 'کارهای امروز و خلاصه مالی'], ['invoices', 'invoice', 'همه صورتحساب‌ها', 'فهرست، فیلتر و پیش‌نمایش'],
     ['new-invoice', 'plus', 'صورتحساب جدید', 'صدور با کنترل زنده قواعد', 'N'], ['rejected', 'send', 'رسیدگی به رد سامانه', 'صورتحساب 1047'],
     ['profile', 'building', 'اطلاعات مودی', 'فروشنده، شعبه‌ها و الگوهای مجاز'], ['parties', 'users', 'طرف‌حساب‌ها', 'خریداران با الزام هر نوع شخص'],
-    ['items', 'box', 'کالا و خدمات', 'شناسه کالا، همگام با سامانه'], ['design-system', 'layers', 'سیستم طراحی', 'رنگ، حروف، اجزا و حرکت']];
+    ['items', 'box', 'کالا و خدمات', 'شناسه کالا، همگام با سامانه'], ['settings', 'sliders', 'تنظیمات', 'اتصال به سامانه مودیان، کلیدها، سرور، ارسال'], ['design-system', 'layers', 'سیستم طراحی', 'رنگ، حروف، اجزا و حرکت']];
   const acts = [
     { icon: 'moon', label: 'تغییر تم روشن و تیره', fn: () => setTheme(isDark() ? 'light' : 'dark') },
     { icon: 'pin', label: 'نمایش نکات طراحی این صفحه', fn: () => Guide.start() },
@@ -2056,7 +2069,7 @@ addEventListener('keydown', e => {
    buyer's reaction from the tax system. Without a session, or with this page opened on its own, the demo runs entirely
    in the browser as before. Invoices issued through the server are kept in this browser so they survive a reload. ---------- */
 const SRV = (() => {
-  const st = { avail: false, on: false, user: null, mode: null, mem: null, stuff: null, timer: 0, busy: false };
+  const st = { avail: false, on: false, user: null, mode: null, mem: null, stuff: null, timer: 0, busy: false, conn: null, sys: null, csr: null, tp: null };
   const KEY = 'lj-srv-inv';
   const STATE = { queued: 'queue', sending: 'queue', in_progress: 'prog', success: 'ok', failed: 'fail', blocked: 'fail' };
   const REACT = { AWAITING_REACTION: () => ({ k: 'wait', d: 0 }), APPROVED: () => ({ k: 'ok' }), SYSTEMIC_APPROVED: () => ({ k: 'sys' }), REJECTED: () => ({ k: 'rej' }), NO_NEED_REACTION: () => ({ k: 'na' }), IMPOSSIBLE_REACTION: () => ({ k: 'na' }) };
@@ -2086,6 +2099,7 @@ const SRV = (() => {
     const b = $('#srvb'); if (!b || !st.avail) return;
     b.innerHTML = `<span class="livedot">${dot(st.on ? 'ok' : 'neu')}</span><span class="lbl2">${st.on ? `سرور لاجورد، ${st.mode === 'live' ? 'سامانه مودیان' : 'محیط آزمایشی'}` : 'ورود به سرور لاجورد'}</span>`;
     b.title = st.on ? `${st.user}، حافظه ${st.mem || CO.mem}: صورتحساب نهایی‌شده روی سرور کنترل، صادر و ارسال می‌شود` : 'بدون ورود، صورتحساب‌ها فقط در همین نمایش ساخته می‌شوند';
+    emit('srv');
   }
   function open() { if (!st.avail) return; return st.on ? account() : login(); }
 
@@ -2121,13 +2135,40 @@ const SRV = (() => {
         <div class="kv"><b>صورتحساب‌های این مرورگر</b><span class="n">${fa(tracked().length)}</span></div></div>
       <div class="df"><button class="btn" id="srvsync">${ic('refresh', 14)}همگام‌سازی</button><button class="btn" id="srvout">خروج</button><button class="btn" data-close>بستن</button></div>`, { label: 'سرور لاجورد' });
     $('#srvsync', d.box).onclick = async e => { const b = e.currentTarget; b.classList.add('busy'); try { await sync(); } finally { b.classList.remove('busy'); } };
-    $('#srvout', d.box).onclick = async () => { try { await api('POST', '/logout'); } catch (e) { /* the cookie is cleared by the server; offline is fine too */ } st.on = false; stop(); paint(); d.close(); toast({ k: 'neu', t: 'از سرور لاجورد خارج شدید', b: 'صورتحساب‌های جدید فقط در همین نمایش ساخته می‌شوند.' }); };
+    $('#srvout', d.box).onclick = async () => { d.close(); await logout(); };
   }
 
+  async function logout() {
+    try { await api('POST', '/logout'); } catch (e) { /* the cookie is cleared by the server; offline is fine too */ }
+    st.on = false; stop(); paint();
+    toast({ k: 'neu', t: 'از سرور لاجورد خارج شدید', b: 'صورتحساب‌های جدید فقط در همین نمایش ساخته می‌شوند.' });
+  }
+  /** The server's connection, system set-up, taxpayer and open certificate request; mirrored into the demo's own state
+      so the profile page and the new invoice show the server's values (memory ID, keys, VAT liability, licensed patterns). */
+  async function loadConn() {
+    const [c, y, t, p] = await Promise.all([api('GET', '/connection'), api('GET', '/system'), api('GET', '/taxpayer'), api('GET', '/connection/csr')]);
+    Object.assign(st, { conn: c, sys: y, tp: t, csr: p || null, mem: c && c.memoryId, stuff: y && y.stuff });
+    if (c) {
+      CO.mem = c.memoryId;
+      S.moa.key = c.hasKey ? { name: 'روی سرور، رمزشده', fp: (c.cert && c.cert.fingerprint || '').split(':').slice(0, 6).join(':'), at: '' } : null;
+      S.moa.cert = c.cert ? { ...c.cert, cn: c.cert.commonName, nid: c.cert.nationalId } : null;
+      // the server's own last test of these keys, not the demo's sample status
+      const lt = c.lastTest;
+      S.moa.conn = !lt ? 'new' : lt.ok ? 'ok' : 'bad';
+      S.moa.at = lt ? (p => `${p.month}/${p.day} ساعت ${p.hour}:${p.minute}`)(Object.fromEntries(new Intl.DateTimeFormat('fa-IR-u-ca-persian-nu-latn', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(lt.at)).map(x => [x.type, x.value]))) : '';
+    }
+    if (t) { S.moa.liab = t.vatCalledIn === false ? 'none' : 'vat'; if (t.license && Array.isArray(t.license.patterns) && t.license.patterns.length) S.pats = new Set(t.license.patterns); }
+    emit('state'); emit('srv');
+  }
+  async function setVat(on) {
+    const t = st.tp || {}, body = { name: t.name, nationalId: t.nationalId, economicCode: t.economicCode, vatCalledIn: !!on, chainMember: !!t.chainMember, ...(t.chainList ? { chainList: t.chainList } : {}) };
+    st.tp = { ...t, ...(await api('PUT', '/taxpayer', body)) };
+  }
   async function me() {
     const m = await api('GET', '/me');
     Object.assign(st, { on: true, user: m.username, mode: m.mode, mem: m.memoryId, stuff: m.stuff });
     paint(); start(); poll();
+    try { await loadConn(); } catch (e) { /* shown as not configured */ }
   }
 
   /* status of the invoices issued through the server */
@@ -2215,7 +2256,243 @@ const SRV = (() => {
     paint();
     try { await me(); } catch (e) { /* not signed in */ }
   }
-  return { init, open, issue, track, sync, poll, box, retry, test, available: () => st.avail, on: () => st.on, mode: () => st.mode, esc };
+  return { init, open, issue, track, sync, poll, box, retry, test, api, loadConn, setVat, logout, available: () => st.avail, on: () => st.on, mode: () => st.mode, user: () => st.user, conn: () => st.conn, sys: () => st.sys, csr: () => st.csr, esc };
+})();
+
+/* ---------- Settings: what makes the system work. The connection to the Moadian system (the one place the keys are
+   entered: memory ID, private key and signing certificate), the Lajvard server, sending and sync, the taxpayer and
+   licence, the goods bank and units, appearance. Signed in, every value is the server's and every change goes there. ---------- */
+(() => {
+  let rootEl = null, method = 'files';
+  const E = s => SRV.esc(s);
+  // a message from the system: its codes (4137, 0300101…) stay in Latin digits like every code in the page
+  const EC = s => E(s).replace(/(^|[^\w])(\d{4,7})(?=[^\w]|$)/g, '$1<span class="lat">$2</span>');
+  const memOk = m => /^[A-Z0-9]{6}$/.test(m || '');
+  const kv = (k, v, cls = '') => `<div class="kv"><b>${k}</b><span class="${cls}" style="justify-self:start">${v}</span></div>`;
+  const jd = iso => { try { return new Intl.DateTimeFormat('fa-IR-u-ca-persian-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(iso)); } catch (e) { return String(iso || ''); } };
+  const b64 = bytes => { let s = ''; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(s); };
+  /** A chosen file: PEM text when it is one, else base64 of its bytes (DER, PFX). */
+  async function fileOf(input, max = 150 * 1024) {
+    const f = input && input.files && input.files[0]; if (!f) return null;
+    if (f.size > max) throw new Error(`فایل «${f.name}» بزرگ‌تر از ${fa(Math.round(max / 1024))} کیلوبایت است`);
+    const bytes = new Uint8Array(await f.arrayBuffer()), txt = new TextDecoder('utf-8').decode(bytes);
+    return { name: f.name, pem: /-----BEGIN [A-Z0-9 ]+-----/.test(txt) ? txt : null, b64: b64(bytes) };
+  }
+  const short = fp => (fp || '').split(':').slice(0, 6).join(':');
+  // a Latin name keeps Latin digits; a Persian one stays in the page's script and direction
+  const nm = v => (/[؀-ۿ]/.test(String(v || '')) ? E(v) : `<span class="lat">${E(v)}</span>`);
+
+  /* ---------- 1. the Moadian connection ---------- */
+  function connHtml() {
+    const on = SRV.on(), c = on ? SRV.conn() : null, sim = SRV.mode() === 'sim';
+    const cert = on ? c && c.cert : S.moa.cert, hasKey = on ? !!(c && c.hasKey) : !!S.moa.key, mem = on ? (c && c.memoryId) || '' : CO.mem;
+    const s = S.moa.conn, st = !hasKey || !cert ? ['bad', 'کلیدهای اتصال کامل نیست؛ شناسه حافظه، کلید خصوصی و گواهی امضا را وارد کنید.'] : s === 'ok' ? ['ok', `اتصال به سامانه مودیان برقرار است؛ آخرین آزمون ${S.moa.at}`] : s === 'new' ? ['warn', on ? 'اتصال با این کلیدها هنوز آزموده نشده است؛ «آزمون اتصال» را بزنید.' : 'کلیدها تغییر کرد؛ «آزمون اتصال» را بزنید.'] : ['bad', 'اتصال برقرار نشد؛ شناسه حافظه، کلید و گواهی را بررسی کنید.'];
+    const left = cert && cert.daysLeft != null ? cert.daysLeft : null;
+    const certLine = !cert ? '<span class="cbad">بارگذاری نشده</span>' : nm(cert.commonName || cert.cn || cert.name || '');
+    const certSub = !cert ? 'گواهی امضای مرکز صدور گواهی میانی' : `${cert.nationalId || cert.nid ? `شناسه ملی <span class="lat">${E(cert.nationalId || cert.nid)}</span>، ` : ''}${cert.validTo ? `تا ${on ? fa(jd(cert.validTo)) : fa(cert.validTo)}` : ''}${left != null ? `، ${left < 31 ? `<span class="cbad">${fa(left)} روز مانده</span>` : `${fa(left)} روز مانده`}` : ''}`;
+    const P = on && SRV.csr();
+    return `<div class="c-h"><div style="display:flex;gap:12px;align-items:center"><span class="tile-i">${ic('shield')}</span><div><div class="c-t">اتصال به سامانه مودیان</div><div class="t13 c3">کلیدهای اتصال فقط همین‌جا وارد می‌شوند: شناسه یکتای حافظه مالیاتی، کلید خصوصی و گواهی امضا</div></div></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" id="stest">${ic('refresh', 14)}آزمون اتصال</button>${on && c ? `<button class="btn sm" id="spub">${ic('copy', 14)}کلید عمومی برای کارپوشه</button>` : ''}${on && sim && c ? `<button class="btn sm" id="sreg">${ic('up', 14)}ثبت در کارپوشه آزمایشی</button>` : ''}</div></div>
+      <div class="mo-g">
+        <div class="mo-k"><span class="tile-i">${ic('building', 16)}</span><div style="min-width:0"><div class="t12 c3">شماره اقتصادی</div><div class="n w5">${fa(S.seller.econ)}</div><div class="t12 c3">از اطلاعات مودی</div></div></div>
+        <div class="mo-k"><span class="tile-i">${ic('hash', 16)}</span><div style="min-width:0"><div class="t12 c3">شناسه یکتای حافظه مالیاتی</div><div class="lat w5">${mem ? E(mem) : '<span class="cbad">ثبت نشده</span>'}</div><div class="t12 c3">۶ نویسه، از کارپوشه، بخش عضویت</div></div></div>
+        <div class="mo-k"><span class="tile-i">${ic('lock', 16)}</span><div style="min-width:0"><div class="t12 c3">کلید خصوصی</div><div class="w5">${hasKey ? (on ? 'روی سرور، رمزشده' : 'بارگذاری شده') : '<span class="cbad">بارگذاری نشده</span>'}</div><div class="t12 c3">${hasKey ? (on ? 'هیچ‌وقت از سرور بیرون نمی‌آید' : `اثر انگشت <span class="lat">${E(S.moa.key.fp)}</span>`) : 'RSA ۲۰۴۸ بیت، PEM یا DER یا داخل PFX'}</div></div></div>
+        <div class="mo-k"><span class="tile-i">${ic('shield', 16)}</span><div style="min-width:0"><div class="t12 c3">گواهی امضا</div><div class="w5 ell2">${certLine}</div><div class="t12 c3">${certSub}${cert && (cert.issuerName || cert.issuer) ? `، صادرکننده ${nm(cert.issuerName || cert.issuer)}` : ''}${cert && cert.selfSigned ? '، <span class="cwarn">خودامضا (فقط آزمایشی)</span>' : ''}</div></div></div>
+      </div>
+      <div class="mo-s">${dot(st[0])}<span class="t13 c2">${st[1]}</span></div>
+      <div class="set-ed" id="set-ed">
+        <div class="t14 w5" style="margin-bottom:8px">${hasKey ? 'تغییر کلیدها' : 'ورود کلیدها'}</div>
+        <div class="seg set-m" id="smeth" role="tablist">${[['files', 'کلید و گواهی جدا'], ['pfx', 'فایل PFX با گذرواژه'], ['csr', 'ساخت کلید روی سرور']].map(([k, l]) => `<button type="button" role="tab" data-m="${k}" class="${method === k ? 'on' : ''}">${l}</button>`).join('')}</div>
+        <div id="smbody" style="margin-top:12px">${methodHtml(on, mem, P)}</div>
+      </div>
+      ${guideHtml(sim)}`;
+  }
+  function methodHtml(on, mem, P) {
+    const memIn = `<div><div class="in"><label for="smem">شناسه یکتای حافظه مالیاتی <em>*</em></label><input id="smem" value="${E(mem || '')}" maxlength="6" autocomplete="off" style="direction:ltr;text-align:right;text-transform:uppercase"></div><div class="fh t12 c3">۶ نویسه، همان که کارپوشه برای این حافظه داده است</div></div>`;
+    if (method === 'files') return `<div class="pfg2">${memIn}<div></div>
+        <div><div class="in"><label for="skey">کلید خصوصی <em>*</em></label><input id="skey" type="file" accept=".key,.pem,.der,.txt" style="direction:ltr"></div><div class="fh t12 c3">PKCS#8 یا PKCS#1، PEM یا DER؛ RSA دست‌کم ۲۰۴۸ بیت</div></div>
+        <div><div class="in"><label for="skpw">گذرواژه کلید</label><input id="skpw" type="password" autocomplete="off" style="direction:ltr;text-align:right"></div><div class="fh t12 c3">فقط اگر کلید رمزدار است</div></div>
+        <div class="span2"><div class="in"><label for="scert">گواهی امضا <em>*</em></label><input id="scert" type="file" accept=".cer,.crt,.pem,.der,.txt" style="direction:ltr"></div><div class="fh t12 c3">گواهی‌ای که مرکز صدور گواهی میانی برای همین کلید صادر کرده؛ PEM یا DER؛ زنجیره گواهی هم پذیرفته است</div></div></div>
+      <div class="df0"><button class="btn pri" id="ssave">${ic('check', 16)}ذخیره کلیدها</button></div>`;
+    if (method === 'pfx') return !on ? signInFirst('خواندن فایل PFX') : `<div class="pfg2">${memIn}<div></div>
+        <div><div class="in"><label for="spfx">فایل PFX یا P12 <em>*</em></label><input id="spfx" type="file" accept=".pfx,.p12" style="direction:ltr"></div><div class="fh t12 c3">کلید و گواهی در یک فایل، همان‌طور که مرکز صدور تحویل می‌دهد</div></div>
+        <div><div class="in"><label for="spw">گذرواژه فایل</label><input id="spw" type="password" autocomplete="off" style="direction:ltr;text-align:right"></div><div class="fh t12 c3">روی سرور فقط برای باز کردن فایل به کار می‌رود و نگه داشته نمی‌شود</div></div></div>
+      <div class="df0"><button class="btn pri" id="ssave">${ic('check', 16)}خواندن و ذخیره</button></div>`;
+    if (!on) return signInFirst('ساخت کلید');
+    if (P) return `<div class="needb" style="margin-top:0"><div class="w5 t13">${ic('clock', 16)}درخواست گواهی باز است، از ${fa(jd(P.createdAt))}</div><div class="t13 c2">کلید خصوصی روی سرور ساخته شده و همان‌جا می‌ماند. این درخواست (CSR) را به مرکز صدور گواهی میانی بدهید؛ گواهی صادرشده را اینجا بارگذاری کنید. حافظه <span class="lat">${E(P.memoryId)}</span>، شناسه ملی <span class="lat">${E(P.subject.SERIALNUMBER)}</span>.</div></div>
+        <textarea class="csr lat" id="scsr" readonly rows="6">${E(P.csrPem)}</textarea>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px"><button class="btn sm" id="scsrc">${ic('copy', 14)}کپی درخواست</button><button class="btn sm" id="scsrd">${ic('dl', 14)}دانلود فایل CSR</button><button class="btn sm plain" id="scsrx">لغو درخواست</button></div>
+        <div class="in"><label for="sissued">گواهی صادرشده <em>*</em></label><input id="sissued" type="file" accept=".cer,.crt,.pem,.der,.txt" style="direction:ltr"></div>
+      <div class="df0"><button class="btn pri" id="ssave">${ic('check', 16)}تکمیل با گواهی صادرشده</button></div>`;
+    return `<div class="pfg2">${memIn}<div></div>
+        <div><div class="in"><label for="scn">نام در گواهی</label><input id="scn" value="${E(S.seller.name)}" maxlength="64"></div><div class="fh t12 c3">نام مودی؛ شناسه ملی ${fa(S.seller.nid)} خودکار در درخواست می‌آید</div></div>
+        <div><div class="in"><label for="smail">ایمیل</label><input id="smail" type="email" style="direction:ltr;text-align:right" maxlength="80"></div><div class="fh t12 c3">اختیاری؛ بعضی مراکز صدور می‌خواهند</div></div></div>
+      <div class="needb"><div class="t13 c2">امن‌ترین روش: کلید خصوصی RSA ۲۰۴۸ بیتی روی سرور ساخته می‌شود و هیچ‌وقت بیرون نمی‌آید. درخواست گواهی (CSR) را به مرکز صدور گواهی میانی می‌دهید و گواهی صادرشده را همین‌جا بارگذاری می‌کنید.</div></div>
+      <div class="df0"><button class="btn pri" id="ssave">${ic('lock', 16)}ساخت کلید و درخواست گواهی</button></div>`;
+  }
+  const signInFirst = what => `<div class="needb" style="margin-top:0"><div class="t13 c2">${what} روی سرور لاجورد انجام می‌شود؛ ${SRV.available() ? 'ابتدا وارد سرور شوید.' : 'این نمایش به سرور وصل نیست.'}</div>${SRV.available() ? `<div><button class="btn sm" data-login="1" style="margin-top:8px">ورود به سرور لاجورد</button></div>` : ''}</div>`;
+  const guideHtml = sim => `<details class="set-guide"${S.moa.key ? '' : ' open'}><summary class="t14 w5">${ic('help', 16)}کلیدها از کجا می‌آیند و کجا وارد می‌شوند</summary>
+      <ol class="t13 c2">
+        <li><b>کارپوشه سامانه مودیان، عضویت و ثبت‌نام:</b> برای این نرم‌افزار «شناسه یکتای حافظه مالیاتی» بگیرید و روش ارسال را «توسط مودی» (یا «شرکت معتمد با کلید مودی») بگذارید.</li>
+        <li><b>مرکز صدور گواهی الکترونیک میانی</b> (مثل پارس‌ساین): گواهی امضای سازمانی با کلید RSA ۲۰۴۸ بیت بگیرید که در آن شناسه ملی مودی (SERIALNUMBER) آمده است. مرکز آن را یا در یک فایل PFX با گذرواژه، یا به صورت کلید و گواهی جدا تحویل می‌دهد. روش امن‌تر: «ساخت کلید روی سرور» و دادن درخواست (CSR) به مرکز.</li>
+        <li><b>کارپوشه، همان حافظه:</b> گواهی امضا (یا کلید عمومی آن، با دکمه «کلید عمومی برای کارپوشه») را بارگذاری کنید.${sim ? ' در محیط آزمایشی، «ثبت در کارپوشه آزمایشی» همین کار را می‌کند.' : ''}</li>
+        <li><b>همین صفحه:</b> شناسه حافظه، کلید خصوصی و گواهی را به یکی از سه روش بالا وارد کنید و «آزمون اتصال» را بزنید. شماره اقتصادی از «اطلاعات مودی» می‌آید.</li>
+      </ol>
+      <div class="t12 c3">مبنا: دستورالعمل فنی اتصال به سامانه مودیان، اردیبهشت ۱۴۰۵؛ هر توکن و هر صورتحساب با کلید خصوصی امضا می‌شود و گواهی امضا همراهش می‌رود. کلیدی که روی توکن سخت‌افزاری است روی سرور قابل استفاده نیست؛ از مرکز صدور نسخه نرم‌افزاری (PFX) بخواهید یا کلید را روی سرور بسازید.</div></details>`;
+
+  async function save(btn) {
+    const on = SRV.on(), box = rootEl, mIn = $('#smem', box), mem = mIn ? cleanId(mIn.value).toUpperCase().replace(/[^A-Z0-9]/g, '') : '';
+    if (mIn && !memOk(mem)) { flash(mIn.closest('.in')); return toast({ k: 'bad', t: 'شناسه حافظه مالیاتی درست نیست', b: 'شناسه یکتای حافظه مالیاتی ۶ نویسه از حرف لاتین و رقم است.' }); }
+    btn.classList.add('busy');
+    try {
+      let r;
+      if (method === 'files') {
+        const k = await fileOf($('#skey', box)), c = await fileOf($('#scert', box));
+        if (!k) { flash($('#skey', box).closest('.in')); throw new Error('فایل کلید خصوصی را انتخاب کنید'); }
+        if (!c) { flash($('#scert', box).closest('.in')); throw new Error('فایل گواهی امضا را انتخاب کنید'); }
+        if (!on) {
+          if (!k.pem || !/PRIVATE KEY/.test(k.pem)) throw new Error('این فایل کلید خصوصی PEM نیست؛ در این نمایش فقط PEM خوانده می‌شود');
+          if (!c.pem || !/CERTIFICATE/.test(c.pem)) throw new Error('این فایل گواهی PEM نیست؛ در این نمایش فقط PEM خوانده می‌شود');
+          let x = 2166136261; for (let i = 0; i < k.pem.length; i++) { x ^= k.pem.charCodeAt(i); x = Math.imul(x, 16777619) >>> 0; }
+          CO.mem = mem; S.moa.key = { name: k.name, fp: (x.toString(16).padStart(8, '0') + (k.pem.length * 2654435761 >>> 0).toString(16).padStart(8, '0')).toUpperCase().slice(0, 12).match(/../g).join(':'), at: TODAY };
+          S.moa.cert = { name: c.name, cn: S.seller.name, nid: S.seller.nid }; S.moa.conn = 'new'; emit('state'); refresh();
+          return toast({ k: 'ok', t: 'کلیدها در این نمایش ذخیره شد', b: 'برای ذخیره واقعی روی سرور و آزمون با سامانه، وارد سرور لاجورد شوید.' });
+        }
+        r = await SRV.api('PUT', '/connection', { memoryId: mem, privateKeyPem: k.pem || k.b64, certPem: c.pem || c.b64, keyPassword: $('#skpw', box).value || undefined });
+      } else if (method === 'pfx') {
+        const p = await fileOf($('#spfx', box));
+        if (!p) { flash($('#spfx', box).closest('.in')); throw new Error('فایل PFX را انتخاب کنید'); }
+        r = await SRV.api('POST', '/connection/pfx', { memoryId: mem, pfx: p.b64, password: $('#spw', box).value });
+        $('#spw', box).value = '';
+      } else if (SRV.csr()) {
+        const c = await fileOf($('#sissued', box));
+        if (!c) { flash($('#sissued', box).closest('.in')); throw new Error('فایل گواهی صادرشده را انتخاب کنید'); }
+        r = await SRV.api('PUT', '/connection/certificate', { certPem: c.pem || c.b64 });
+      } else {
+        const p = await SRV.api('POST', '/connection/csr', { memoryId: mem, commonName: $('#scn', box).value.trim(), email: $('#smail', box).value.trim() || undefined });
+        await SRV.loadConn(); refresh();
+        return toast({ k: 'ok', t: 'کلید ساخته شد و درخواست گواهی آماده است', b: `درخواست را به مرکز صدور گواهی بدهید و گواهی صادرشده را همین‌جا بارگذاری کنید (حافظه <span class="lat">${E(p.memoryId)}</span>).` });
+      }
+      S.moa.conn = 'new'; await SRV.loadConn(); refresh(); emit('state');
+      const w = (r && r.warnings) || [];
+      toast({ k: w.length ? 'warn' : 'ok', t: 'کلیدها روی سرور ذخیره شد', b: `${w.length ? E(w.join(' ')) + ' ' : ''}${SRV.mode() === 'sim' ? '«ثبت در کارپوشه آزمایشی» و بعد «آزمون اتصال» را بزنید.' : 'گواهی باید در کارپوشه برای همین حافظه بارگذاری شده باشد؛ بعد «آزمون اتصال» را بزنید.'}` });
+    } catch (e) { toast({ k: 'bad', t: 'کلیدها ذخیره نشد', b: EC(e.message) }); }
+    finally { btn.classList.remove('busy'); }
+  }
+  async function test(btn) {
+    if (!SRV.on()) {
+      await busy(btn, 900, 'آزمون اتصال');
+      const ok = memOk(CO.mem) && S.moa.key && S.moa.cert; S.moa.conn = ok ? 'ok' : 'bad'; S.moa.at = 'همین حالا'; refresh(); emit('state');
+      return toast(ok ? { k: 'ok', t: 'اتصال در این نمایش برقرار است', b: 'برای آزمون واقعی با سامانه، وارد سرور لاجورد شوید.' } : { k: 'bad', t: 'کلیدهای اتصال کامل نیست', b: 'شناسه حافظه، کلید خصوصی و گواهی امضا لازم است.' });
+    }
+    btn.classList.add('busy');
+    try {
+      const r = await SRV.test(); S.moa.conn = r.ok ? 'ok' : 'bad'; S.moa.at = 'همین حالا';
+      toast(r.ok ? { k: 'ok', t: 'اتصال سرور به سامانه مودیان برقرار است', b: `حافظه <span class="lat">${E(r.fiscal && r.fiscal.nameTrade || '')}</span>، وضعیت <span class="lat">${E(r.fiscal && r.fiscal.fiscalStatus || '')}</span>` } : { k: 'bad', t: 'اتصال برقرار است ولی ایراد دارد', b: E((r.issues || []).join('؛ ')) });
+    } catch (e) { S.moa.conn = 'bad'; toast({ k: 'bad', t: 'اتصال به سامانه مودیان برقرار نشد', b: `${EC(e.message)}${SRV.mode() === 'sim' && e.code === 'UNAUTHORIZED' ? ' «ثبت در کارپوشه آزمایشی» را بزنید.' : ''}` }); }
+    finally { btn.classList.remove('busy'); refresh(); emit('state'); }
+  }
+
+  /* ---------- 2. the Lajvard server ---------- */
+  function srvHtml() {
+    const on = SRV.on(), sy = SRV.sys() || {};
+    return `<div class="c-h"><div style="display:flex;gap:12px;align-items:center"><span class="tile-i">${ic('send')}</span><div><div class="c-t">سرور لاجورد</div><div class="t13 c3">بک‌اندی که صورتحساب را کنترل، صادر، امضا، رمز و به سامانه مودیان ارسال می‌کند</div></div></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">${on ? `<button class="btn sm" id="ssync">${ic('refresh', 14)}همگام‌سازی</button><button class="btn sm" id="sout">خروج</button>` : SRV.available() ? '<button class="btn sm pri" data-login="1">ورود به سرور لاجورد</button>' : ''}</div></div>
+      <div class="pr-b"><div>${kv('وضعیت', on ? `${dot('ok')}وارد شده‌اید` : SRV.available() ? `${dot('neu')}وارد نشده‌اید؛ صورتحساب‌ها فقط در همین نمایش ساخته می‌شوند` : `${dot('neu')}این نمایش به سرور وصل نیست`, 'pst')}${on ? kv('کاربر', `<span class="lat">${E(SRV.user())}</span>`) : ''}</div>
+        <div>${on ? kv('محیط', SRV.mode() === 'live' ? 'سامانه مودیان (عملیاتی)' : 'محیط آزمایشی: شبیه‌ساز مستقل سامانه مودیان') + kv('نسخه سرور', `<span class="lat">${E(sy.version || '')}</span>`) : ''}</div></div>`;
+  }
+
+  /* ---------- 3. sending and sync ---------- */
+  function sendHtml() {
+    const on = SRV.on(), y = (on && SRV.sys()) || {}, dd = y.deadlineDays ?? DEADLINE_DAYS, rw = y.refWindowDays || REF_WINDOW_DAYS;
+    return `<div class="c-h"><div style="display:flex;gap:12px;align-items:center"><span class="tile-i">${ic('clock')}</span><div><div class="c-t">ارسال و همگام‌سازی</div><div class="t13 c3">این مقادیر را اپراتور لاجورد در پیکربندی سرور تنظیم می‌کند؛ اینجا برای اطلاع نمایش داده می‌شوند</div></div></div></div>
+      <div class="pr-b"><div>${kv('مقصد ارسال', on ? E(y.target || '') : 'در این نمایش، شبیه‌سازی در مرورگر')}${kv('همگام‌سازی خودکار', on ? (y.syncSeconds ? `هر ${fa(y.syncSeconds)} ثانیه: ارسال صف، استعلام نتیجه، واکنش خریدار` : 'خاموش؛ با دکمه همگام‌سازی') : 'با دکمه همگام‌سازی')}${kv('نخستین استعلام', on ? `${fa(Math.round((y.pollAfterMs || 0) / 1000))} ثانیه پس از ارسال` : '—')}${kv('تلاش دوباره', on ? `تا ${fa(y.maxAttempts)} بار، با فاصله فزاینده؛ بعد «متوقف» برای بررسی` : '—')}</div>
+        <div>${kv('مهلت ارسال (ماده ۹)', `${fa(dd)} روز از صدور؛ پس از آن «قاعده ارسال» و «تاریخ ثبت» افزوده می‌شود${on ? `، با ساعت سامانه و ${fa(y.art9MarginMinutes)} دقیقه زودتر` : ''}`)}${kv('بازه صورتحساب ارجاعی', `اصلاحی ${fa(rw[2])}، ابطالی ${fa(rw[3])}، برگشت از فروش ${fa(rw[4])} روز`)}${kv('مبنای کنترل‌ها', 'دستورالعمل صدور صورتحساب الکترونیکی V7.9 و دستورالعمل فنی اتصال، اردیبهشت ۱۴۰۵')}</div></div>`;
+  }
+
+  /* ---------- 4. the taxpayer and licence ---------- */
+  function tpHtml() {
+    const vat = S.moa.liab === 'vat', pats = [...S.pats].sort();
+    return `<div class="c-h"><div style="display:flex;gap:12px;align-items:center"><span class="tile-i">${ic('building')}</span><div><div class="c-t">مودی و مجوز</div><div class="t13 c3">هویت فروشنده قفل است و الگوها را لاجورد پس از خرید فعال می‌کند</div></div></div><button class="btn sm" id="sprof">${ic('pen', 14)}اطلاعات مودی</button></div>
+      <div class="pr-b"><div>${kv('نام مودی', `${E(S.seller.name)} ${ic('lock', 12)}`)}${kv('شناسه ملی', `${fa(S.seller.nid)} ${ic('lock', 12)}`, 'n')}${kv('شماره اقتصادی', fa(S.seller.econ), 'n')}</div>
+        <div><div class="kv"><b>نوع مشمولیت</b><span style="justify-self:start"><span class="seg" id="sliab">${['vat', 'none'].map(l => `<button type="button" data-l="${l}" class="${S.moa.liab === l ? 'on' : ''}">${l === 'vat' ? 'فراخوان‌شده در ارزش افزوده' : 'فراخوان‌نشده'}</button>`).join('')}</span></span></div>
+          <div class="t12 c3" style="margin:-4px 0 8px">${vat ? 'نرخ ارزش افزوده شناسه کالا در صورتحساب اعمال می‌شود.' : 'نرخ قابل قبول ارزش افزوده در صورتحساب صفر است.'}</div>
+          ${kv('الگوهای خریداری‌شده', pats.map(p => { const [t, i] = p.split('-').map(Number); return `<span class="mini">${t === 2 ? 'نوع دوم، ' : ''}${patName(i)}</span>`; }).join(' ') || '—')}</div></div>`;
+  }
+  async function setLiab(l) {
+    if (l === S.moa.liab) return;
+    if (SRV.on()) {
+      try { await SRV.setVat(l === 'vat'); } catch (e) { return toast({ k: 'bad', t: 'نوع مشمولیت ذخیره نشد', b: E(e.message) }); }
+    }
+    S.moa.liab = l; S.seller.vat = l === 'vat' ? 'فراخوان‌شده در مالیات بر ارزش افزوده' : 'فراخوان‌نشده در مالیات بر ارزش افزوده';
+    emit('state'); refresh(); toast({ k: 'ok', t: 'نوع مشمولیت ذخیره شد', b: l === 'vat' ? 'نرخ شناسه کالا اعمال می‌شود.' : 'نرخ ارزش افزوده صورتحساب‌ها صفر می‌شود.' });
+  }
+
+  /* ---------- 5. goods bank and units ---------- */
+  function bankHtml() {
+    const on = SRV.on(), y = (on && SRV.sys()) || {}, b = y.stuff || {};
+    const asof = b.asof ? fa(String(b.asof).replace(/(\d{4})(\d\d)(\d\d)/, '$1/$2/$3')) : null;
+    return `<div class="c-h"><div style="display:flex;gap:12px;align-items:center"><span class="tile-i">${ic('box')}</span><div><div class="c-t">بانک شناسه کالا و واحدها</div><div class="t13 c3">نرخ ارزش افزوده هر شناسه در تاریخ خود صورتحساب حساب می‌شود</div></div></div><button class="btn sm" id="sitems">${ic('box', 14)}کالا و خدمات</button></div>
+      <div class="pr-b"><div>${kv('بانک شناسه کالا و خدمت', on ? (b.source === 'db' ? `کامل، ${fa(grp(b.ids))} شناسه با تاریخچه نرخ` : `نمونه، ${fa(grp(b.ids || 0))} شناسه؛ شناسه ناموجود فقط هشدار می‌گیرد`) : 'نمونه این نمایش')}${asof ? kv('به‌روز تا', asof, 'n') : ''}</div>
+        <div>${kv('واحدهای اندازه‌گیری', `${on ? fa(y.units) : fa(102)} واحد، فهرست رسمی RC_UMGS.ST نسخه ۱٫۱۸ (اردیبهشت ۱۴۰۴)`)}${kv('کدهای خطا', 'فهرست رسمی سامانه مودیان، اسفند ۱۴۰۲')}</div></div>`;
+  }
+
+  /* ---------- 6. appearance ---------- */
+  function uiHtml() {
+    const cur = store.get('lj-theme') || 'system';
+    return `<div class="c-h"><div style="display:flex;gap:12px;align-items:center"><span class="tile-i">${ic('palette')}</span><div><div class="c-t">ظاهر</div><div class="t13 c3">فقط روی همین مرورگر</div></div></div>
+        <span class="seg" id="stheme">${[['light', 'روشن'], ['dark', 'تیره'], ['system', 'مطابق سیستم']].map(([k, l]) => `<button type="button" data-t="${k}" class="${cur === k ? 'on' : ''}">${l}</button>`).join('')}</span></div>`;
+  }
+
+  function render() {
+    return `<div class="pg-prof pg-set">
+      <section class="card rv moa" style="--r:0" id="set-conn">${connHtml()}</section>
+      <section class="card rv" style="--r:1" id="set-srv">${srvHtml()}</section>
+      <section class="card rv" style="--r:2" id="set-send">${sendHtml()}</section>
+      <section class="card rv" style="--r:3" id="set-tp">${tpHtml()}</section>
+      <section class="card rv" style="--r:4" id="set-bank">${bankHtml()}</section>
+      <section class="card rv" style="--r:5" id="set-ui">${uiHtml()}</section>
+    </div>`;
+  }
+  function refresh() {
+    if (!rootEl || current !== 'settings') return;
+    const keep = window.scrollY;
+    rootEl.innerHTML = render(); hyd(rootEl); bind(rootEl); window.scrollTo(0, keep);
+  }
+  function bind(root) {
+    rootEl = root;
+    $$('#smeth button', root).forEach(b => b.onclick = () => { method = b.dataset.m; refresh(); });
+    const mm = $('#smem', root); if (mm) mm.oninput = () => { const p = mm.selectionStart; mm.value = cleanId(mm.value).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6); try { mm.setSelectionRange(p, p); } catch (e) {} };
+    const sv = $('#ssave', root); if (sv) sv.onclick = e => save(e.currentTarget);
+    $('#stest', root).onclick = e => test(e.currentTarget);
+    const pub = $('#spub', root); if (pub) pub.onclick = () => { const c = SRV.conn(); if (c && c.publicKeyPem) copy(c.publicKeyPem, 'کلید عمومی کپی شد؛ در کارپوشه، بخش عضویت، برای همین حافظه بارگذاری کنید'); };
+    const rg = $('#sreg', root); if (rg) rg.onclick = async e => { const b = e.currentTarget; b.classList.add('busy'); try { await SRV.api('POST', '/sandbox/register'); toast({ k: 'ok', t: 'در کارپوشه آزمایشی ثبت شد', b: 'حافظه و گواهی در سامانه آزمایشی شناخته می‌شوند؛ «آزمون اتصال» را بزنید.' }); S.moa.conn = 'new'; refresh(); } catch (x) { toast({ k: 'bad', t: 'ثبت انجام نشد', b: E(x.message) }); } finally { b.classList.remove('busy'); } };
+    const cc = $('#scsrc', root); if (cc) cc.onclick = () => copy(SRV.csr().csrPem, 'درخواست گواهی کپی شد');
+    const cd = $('#scsrd', root); if (cd) cd.onclick = () => { const p = SRV.csr(), u = URL.createObjectURL(new Blob([p.csrPem], { type: 'application/pkcs10' })), a = document.createElement('a'); a.href = u; a.download = `lajvard-${p.memoryId}.csr`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 1000); };
+    const cx = $('#scsrx', root); if (cx) cx.onclick = async () => { try { await SRV.api('POST', '/connection/csr/cancel'); await SRV.loadConn(); refresh(); toast({ k: 'neu', t: 'درخواست گواهی لغو شد', b: 'کلید ساخته‌شده پاک شد.' }); } catch (e) { toast({ k: 'bad', t: 'لغو نشد', b: E(e.message) }); } };
+    $$('[data-login]', root).forEach(b => b.onclick = () => SRV.open());
+    const sy = $('#ssync', root); if (sy) sy.onclick = async e => { const b = e.currentTarget; b.classList.add('busy'); try { await SRV.sync(); toast({ k: 'ok', t: 'همگام‌سازی انجام شد' }); } finally { b.classList.remove('busy'); } };
+    const so = $('#sout', root); if (so) so.onclick = () => SRV.logout();
+    $$('#sliab button', root).forEach(b => b.onclick = () => setLiab(b.dataset.l));
+    $('#sprof', root).onclick = () => go('profile');
+    $('#sitems', root).onclick = () => go('items');
+    $$('#stheme button', root).forEach(b => b.onclick = () => { setTheme(b.dataset.t); refresh(); });
+  }
+  on('srv', () => refresh());
+  page('settings', {
+    label: 'تنظیمات', nav: 'set', render,
+    mount(root) {
+      bind(root);
+      // opened at a section (e.g. «تغییر کلیدها در تنظیمات» from the profile): jump there, below the sticky top bar
+      const sec = S.nav && S.nav.sec;
+      if (sec) setTimeout(() => { const el = $(`#set-${sec}`, root), top = document.querySelector('.top'); if (el) window.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - ((top ? top.getBoundingClientRect().bottom : 64) + 16)), behavior: 'auto' }); }, 80);
+      return () => { rootEl = null; };
+    },
+    notes: [
+      { at: '#set-conn', ic: 'shield', t: 'کلیدها فقط همین‌جا', d: 'شناسه حافظه، کلید خصوصی و گواهی امضا به یکی از سه روش وارد می‌شوند و پس از ورود به سرور، واقعاً روی سرور ذخیره و آزموده می‌شوند. کلید خصوصی رمزشده نگه داشته می‌شود و هیچ‌وقت برگردانده نمی‌شود.' },
+      { at: '#set-send', ic: 'clock', t: 'قواعد ارسال', d: 'مهلت ماده ۹، بازه صورتحساب ارجاعی و همگام‌سازی خودکار همان مقادیری است که سرور با آن‌ها کار می‌کند.' }
+    ]
+  });
 })();
 
 /* ---------- boot ---------- */
@@ -2288,7 +2565,7 @@ S.pats = new Set(['1-1', '1-4', '1-7', '1-14', '2-1']);
 const patOn = (inty, inp) => S.pats.has(`${inty}-${inp}`);
 /* ---------- connection to the Moadian system: the economic code (from the taxpayer), the unique ID of the
    tax memory and the private key whose public key is registered in the taxpayer's portal (technical instruction). */
-S.moa = { liab: 'vat', key: { name: 'lajvard-A3F9K2.key', fp: '7C:41:9E:2B:D0:65', at: '1405/07/02' }, conn: 'ok', at: 'امروز ۰۶:۰۰' };
+S.moa = { liab: 'vat', key: { name: 'lajvard-A3F9K2.key', fp: '7C:41:9E:2B:D0:65', at: '1405/07/02' }, cert: { name: 'lajvard-A3F9K2.crt', cn: CO.name, nid: '10320945871', issuer: 'مرکز صدور گواهی میانی', validTo: '1406/07/02' }, conn: 'ok', at: 'امروز ۰۶:۰۰' };
 const LIAB = { vat: 'مشمول مالیات بر ارزش افزوده (فراخوان‌شده)', none: 'غیرمشمول مالیات بر ارزش افزوده (فراخوان‌نشده)' };
 /* ---------- export declarations (customs short number) registered for the export pattern ---------- */
 S.decl = [{ cdcn: '1405012345678', cdcd: '1405/07/28', scc: '50100', d: 'تجارة الرافدین، بغداد' }];
@@ -4689,15 +4966,22 @@ function ctxMenu(e, opts) {
   function moaHtml() {
     const s = S.seller, k = S.moa.key, c = S.moa.conn;
     const st = c === 'ok' ? ['ok', `اتصال به سامانه مودیان برقرار است؛ آخرین آزمون ${S.moa.at}`] : c === 'new' ? ['warn', 'تنظیمات تغییر کرد؛ «آزمون اتصال» را بزنید تا اتصال با کلیدهای جدید تأیید شود.'] : ['bad', 'اتصال برقرار نشد؛ شناسه حافظه و کلید خصوصی را بررسی کنید.'];
-    return `<div class="c-h"><div><div class="c-t">تنظیمات سامانه مودیان</div><div class="t13 c3">سه کلید اتصال به سامانه: شماره اقتصادی، شناسه یکتای حافظه مالیاتی و کلید خصوصی؛ همراه نوع مشمولیت</div></div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" id="mtest">${ic('refresh', 14)}آزمون اتصال</button><button class="btn sm" id="medit">${ic('pen', 14)}ویرایش تنظیمات</button></div></div>
+    return `<div class="c-h"><div><div class="c-t">تنظیمات سامانه مودیان</div><div class="t13 c3">کلیدهای اتصال: شماره اقتصادی، شناسه یکتای حافظه مالیاتی، کلید خصوصی و گواهی امضا؛ همراه نوع مشمولیت. ورود و تغییر کلیدها در «تنظیمات»</div></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" id="mtest">${ic('refresh', 14)}آزمون اتصال</button><button class="btn sm" id="medit">${ic('pen', 14)}تغییر کلیدها در تنظیمات</button></div></div>
       <div class="mo-g">
         <div class="mo-k"><span class="tile-i">${ic('building', 16)}</span><div style="min-width:0"><div class="t12 c3">شماره اقتصادی</div><div class="n w5">${fa(s.econ)}</div><div class="t12 c3">از اطلاعات مودی</div></div></div>
         <div class="mo-k"><span class="tile-i">${ic('shield', 16)}</span><div style="min-width:0"><div class="t12 c3">شناسه یکتای حافظه مالیاتی</div><div class="lat w5">${CO.mem}</div><div class="t12 c3">۶ نویسه، از کارپوشه سامانه مودیان</div></div></div>
-        <div class="mo-k"><span class="tile-i">${ic('lock', 16)}</span><div style="min-width:0"><div class="t12 c3">کلید خصوصی</div><div class="w5">${k ? 'بارگذاری شده' : '<span class="cbad">بارگذاری نشده</span>'}</div><div class="t12 c3">${k ? `اثر انگشت <span class="lat">${k.fp}</span>` : 'فایل کلید خصوصی، PEM'}</div></div></div>
+        <div class="mo-k"><span class="tile-i">${ic('lock', 16)}</span><div style="min-width:0"><div class="t12 c3">کلید خصوصی و گواهی امضا</div><div class="w5">${!k ? '<span class="cbad">کلید بارگذاری نشده</span>' : !S.moa.cert ? '<span class="cbad">گواهی بارگذاری نشده</span>' : 'بارگذاری شده'}</div><div class="t12 c3">${moaCertLine(k)}</div></div></div>
         <div class="mo-k"><span class="tile-i">${ic('scale', 16)}</span><div style="min-width:0"><div class="t12 c3">نوع مشمولیت</div><div class="w5">${S.moa.liab === 'vat' ? 'مشمول ارزش افزوده' : 'غیرمشمول ارزش افزوده'}</div><div class="t12 c3">${S.moa.liab === 'vat' ? 'فراخوان‌شده' : 'فراخوان‌نشده'}</div></div></div>
       </div>
       <div class="mo-s">${dot(st[0])}<span class="t13 c2">${st[1]}</span></div>`;
+  }
+  // the certificate under the key tile: national ID and validity (a server date is ISO, a demo date is Jalali already)
+  function moaCertLine(k) {
+    const c = S.moa.cert;
+    if (!c) return k ? `اثر انگشت کلید <span class="lat">${k.fp}</span>` : 'گواهی مرکز صدور میانی و کلید آن';
+    const nid = c.nid || c.nationalId, to = c.validTo ? (String(c.validTo).length > 12 ? new Intl.DateTimeFormat('fa-IR-u-ca-persian-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(c.validTo)) : c.validTo) : '';
+    return `گواهی${nid ? ` شناسه ملی <span class="lat">${nid}</span>` : ''}${to ? `، تا ${fa(to)}` : ''}`;
   }
   function moaEdit() {
     let key = S.moa.key, liab = S.moa.liab;
@@ -4841,7 +5125,7 @@ function ctxMenu(e, opts) {
     $$('[data-preq]', root).forEach(b => b.onclick = async e => { const [t, p] = b.dataset.preq.split('-').map(Number); await busy(e.currentTarget, 700, 'ثبت درخواست'); toast({ k: 'neu', t: `درخواست فعال‌سازی الگوی ${patName(p)} ثبت شد`, b: 'پس از خرید، لاجورد این الگو را برای شما فعال می‌کند و در صورتحساب جدید دیده می‌شود.' }); });
     $('#cmpall', root).onclick = () => Compare.open({ inty: 1, inp: 7 }, { inty: 1, inp: 1 });
     $('#pedit', root).onclick = edit;
-    $('#medit', root).onclick = moaEdit;
+    $('#medit', root).onclick = () => go('settings', { sec: 'conn' });
     $('#mtest', root).onclick = async e => {
       if (SRV.on()) {
         const btn = e.currentTarget; btn.classList.add('busy');
@@ -4862,7 +5146,7 @@ function ctxMenu(e, opts) {
     label: 'اطلاعات مودی', nav: 'profile', render,
     notes: [
       { at: '[data-note="2"]', ic: 'building', t: 'فروشنده یک بار تعریف می‌شود', d: 'نام و شناسه ملی را لاجورد هنگام تحویل ثبت می‌کند و قفل است تا یک نسخه برای چند شرکت به کار نرود؛ بقیه اطلاعات را خود مودی ویرایش می‌کند.' },
-      { at: '[data-note="6"]', ic: 'shield', t: 'سه کلید اتصال', d: 'شماره اقتصادی، شناسه یکتای حافظه مالیاتی و کلید خصوصی، همراه نوع مشمولیت، در یک بخش؛ با آزمون اتصال پیش از اولین ارسال.' },
+      { at: '[data-note="6"]', ic: 'shield', t: 'کلیدهای اتصال', d: 'شماره اقتصادی، شناسه یکتای حافظه مالیاتی، کلید خصوصی و گواهی امضا، همراه نوع مشمولیت؛ اینجا خلاصه است و ورود و تغییرشان فقط در «تنظیمات»، با آزمون اتصال پیش از اولین ارسال.' },
       { at: '[data-note="5"]', ic: 'layers', t: 'الگوهای خریداری‌شده', d: 'فقط الگوهایی که مودی خریده در صورتحساب جدید دیده می‌شوند؛ اقلام لازم هر الگو، مثل قرارداد پیمانکاری یا کوتاژ صادرات، در تنظیمات همان الگو از دستورالعمل آمده است.' }
     ],
     mount(root) { bind(root); return () => { rootEl = null; }; }
