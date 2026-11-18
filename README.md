@@ -32,7 +32,7 @@ The profile page shows the keys as a summary; its button opens this page.
 
 ## The Lajvard server (v10)
 
-The top-bar badge «ورود به سرور لاجورد» (also in the settings menu, for phones) signs in to the Lajvard backend on the same origin.
+The top-bar badge «ورود به سرور لاجورد» signs in to the Lajvard backend on the same origin. On phones, where the badge is hidden, sign in from the Settings page.
 
 Signed in, finalizing an invoice sends the page's own invoice JSON to the server. The server does the following:
 
