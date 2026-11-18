@@ -119,6 +119,14 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .cmd:hover{border-color:var(--ink-4)}
 .cmd .q0{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .conn{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2);white-space:nowrap;margin-inline-end:16px}
+button.conn{background:none;border:0;padding:4px 8px;margin-inline-end:8px;border-radius:8px;font:inherit;font-size:13px;color:var(--ink-2);cursor:pointer}
+button.conn:hover{background:var(--pri-soft)}
+button.conn:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
+.srv-errs{display:grid;gap:6px;margin-top:8px;max-height:280px;overflow:auto}
+.srv-e{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;padding:8px 10px;border-radius:8px;background:color-mix(in srgb,var(--bad) 8%,transparent);font-size:13px;line-height:20px}
+.srv-e.w{background:color-mix(in srgb,var(--warn) 10%,transparent)}
+.srv-e>.lat{grid-row:span 2;font-size:12px;color:var(--ink-2)}
+.srv-e>.t12{grid-column:2}
 .livedot{position:relative;width:12px;height:12px;flex:none}
 .livedot::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--ok);animation:ping 2.4s var(--ease) infinite;opacity:0}
 .today{white-space:nowrap;margin-inline-end:16px}
@@ -1835,7 +1843,7 @@ function shell() {
         <button class="ib burger" id="burger" aria-label="باز کردن منو">${ic('menu', 16)}</button>
         <div class="cmd" id="cmd" role="button" tabindex="0" aria-label="جست‌وجو و دستیار"><span class="fleck live"></span><span class="q0">بپرسید یا جست‌وجو کنید: صورتحساب، طرف‌حساب، کالا، الگو</span><kbd>Ctrl K</kbd></div>
         <div class="sp"></div>
-        <div class="conn" title="آخرین استعلام ۲ دقیقه پیش"><span class="livedot">${dot('ok')}</span><span class="lbl2">سامانه مودیان متصل است</span></div>
+        <button class="conn" id="srvb" type="button" title="آخرین استعلام ۲ دقیقه پیش"><span class="livedot">${dot('ok')}</span><span class="lbl2">سامانه مودیان متصل است</span></button>
         <div class="t13 c3 today">${CO.today}</div>
         <button class="btn sm fy" id="fy">سال مالی 1405${ic('down', 14)}</button>
         <button class="btn sm" id="co"><span class="co-name">${CO.name}</span><span class="av" style="width:22px;height:22px;font-size:11px;display:none" id="coav">آت</span>${ic('down', 14)}</button>
@@ -1918,7 +1926,7 @@ function setTheme(t) {
 function themeIcon() { const b = $('#theme'); if (b) b.innerHTML = ic(isDark() ? 'sun' : 'moon', 16); }
 function themeMenu(anchor) {
   const cur = store.get('lj-theme') || 'system';
-  menu(anchor, { head: 'تم رابط', items: [{ label: 'روشن', icon: 'sun', checked: cur === 'light', fn: () => setTheme('light') }, { label: 'تیره', icon: 'moon', checked: cur === 'dark', fn: () => setTheme('dark') }, { label: 'مطابق سیستم', icon: 'sliders', checked: cur === 'system', fn: () => setTheme('system') }] });
+  menu(anchor, { head: 'تم رابط', items: [{ label: 'روشن', icon: 'sun', checked: cur === 'light', fn: () => setTheme('light') }, { label: 'تیره', icon: 'moon', checked: cur === 'dark', fn: () => setTheme('dark') }, { label: 'مطابق سیستم', icon: 'sliders', checked: cur === 'system', fn: () => setTheme('system') }, ...(SRV.available() ? ['-', { label: SRV.on() ? 'سرور لاجورد' : 'ورود به سرور لاجورد', icon: 'send', fn: () => SRV.open() }] : [])] });
 }
 
 /* ---------- command palette with the assistant ---------- */
@@ -2044,12 +2052,179 @@ addEventListener('keydown', e => {
   if (e.key === '/') { e.preventDefault(); Palette.open(); }
 });
 
+/* ---------- the Lajvard server (the real backend): sign-in, issuing with the instruction's checks, send status and the
+   buyer's reaction from the tax system. Without a session, or with this page opened on its own, the demo runs entirely
+   in the browser as before. Invoices issued through the server are kept in this browser so they survive a reload. ---------- */
+const SRV = (() => {
+  const st = { avail: false, on: false, user: null, mode: null, mem: null, stuff: null, timer: 0, busy: false };
+  const KEY = 'lj-srv-inv';
+  const STATE = { queued: 'queue', sending: 'queue', in_progress: 'prog', success: 'ok', failed: 'fail', blocked: 'fail' };
+  const REACT = { AWAITING_REACTION: () => ({ k: 'wait', d: 0 }), APPROVED: () => ({ k: 'ok' }), SYSTEMIC_APPROVED: () => ({ k: 'sys' }), REJECTED: () => ({ k: 'rej' }), NO_NEED_REACTION: () => ({ k: 'na' }), IMPOSSIBLE_REACTION: () => ({ k: 'na' }) };
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const tracked = () => S.inv.filter(v => v.srv);
+  const save = () => store.set(KEY, JSON.stringify(tracked()));
+  const final = v => v.srv && (v.srv.state === 'failed' || (v.srv.state === 'success' && v.srv.reaction && v.srv.reaction !== 'AWAITING_REACTION'));
+
+  async function api(method, path, body, headers = {}) {
+    let r;
+    try {
+      r = await fetch('/api' + path, { method, credentials: 'same-origin', cache: 'no-store',
+        headers: { ...(body !== undefined ? { 'content-type': 'application/json' } : {}), ...(method !== 'GET' ? { 'x-lajvard': '1' } : {}), ...headers },
+        body: body !== undefined ? JSON.stringify(body) : undefined });
+    } catch (e) { throw Object.assign(new Error('اتصال به سرور لاجورد برقرار نشد'), { code: 'NETWORK' }); }
+    const t = await r.text(); let j = null; try { j = t ? JSON.parse(t) : null; } catch (e) { j = null; }
+    if (r.status === 401 && path !== '/login' && st.on) {
+      st.on = false; stop(); paint();
+      toast({ k: 'bad', t: 'نشست سرور لاجورد تمام شد', b: 'دوباره وارد شوید؛ تا آن زمان صورتحساب‌ها فقط در همین نمایش ساخته می‌شوند.' });
+    }
+    if (!r.ok) throw Object.assign(new Error((j && j.error && j.error.message) || `خطای سرور لاجورد (${r.status})`), { status: r.status, code: j && j.error && j.error.code, body: j });
+    return j;
+  }
+
+  /* the badge in the top bar (and the item in the settings menu, which also works on a phone) */
+  function paint() {
+    const b = $('#srvb'); if (!b || !st.avail) return;
+    b.innerHTML = `<span class="livedot">${dot(st.on ? 'ok' : 'neu')}</span><span class="lbl2">${st.on ? `سرور لاجورد، ${st.mode === 'live' ? 'سامانه مودیان' : 'محیط آزمایشی'}` : 'ورود به سرور لاجورد'}</span>`;
+    b.title = st.on ? `${st.user}، حافظه ${st.mem || CO.mem}: صورتحساب نهایی‌شده روی سرور کنترل، صادر و ارسال می‌شود` : 'بدون ورود، صورتحساب‌ها فقط در همین نمایش ساخته می‌شوند';
+  }
+  function open() { if (!st.avail) return; return st.on ? account() : login(); }
+
+  function login() {
+    const d = dialog(`<div class="dh"><div class="t18 w5">ورود به سرور لاجورد</div><button class="ib" data-close aria-label="بستن">${ic('x', 14)}</button></div>
+      <div class="db"><p class="t13 c3" style="margin-bottom:16px">پس از ورود، صورتحساب نهایی‌شده به بک‌اند لاجورد می‌رود: با قواعد دستورالعمل کنترل می‌شود، سریال و شماره مالیاتی می‌گیرد، امضا و رمز می‌شود و به سامانه مودیان ارسال می‌شود.</p>
+        <form id="srvf" novalidate><div class="in"><label for="srvu">نام کاربری</label><input id="srvu" autocomplete="username" dir="ltr" style="text-align:right" maxlength="32" autofocus></div>
+          <div class="in" style="margin-top:12px"><label for="srvp">گذرواژه</label><input id="srvp" type="password" autocomplete="current-password" dir="ltr" style="text-align:right" maxlength="200"></div>
+          <div class="t12 cbad" id="srve" role="alert" style="min-height:18px;margin-top:8px"></div><button type="submit" hidden></button></form></div>
+      <div class="df"><button class="btn pri" id="srvgo">ورود</button><button class="btn" data-close>انصراف</button></div>`, { label: 'ورود به سرور لاجورد' });
+    const go1 = async () => {
+      const u = $('#srvu', d.box).value.trim(), p = $('#srvp', d.box).value, e = $('#srve', d.box), btn = $('#srvgo', d.box);
+      if (!u || !p) { e.textContent = 'نام کاربری و گذرواژه را وارد کنید.'; return; }
+      if (st.busy) return; st.busy = true; btn.classList.add('busy'); e.textContent = '';
+      try {
+        const r = await api('POST', '/login', { username: u, password: p });
+        await me(); d.close();
+        toast({ k: 'ok', t: `وارد شدید: <span class="lat">${esc(r.username)}</span>`, b: st.mode === 'live' ? 'صورتحساب‌ها به سامانه مودیان ارسال می‌شوند.' : 'محیط آزمایشی سامانه مودیان؛ صورتحساب‌ها واقعاً صادر، امضا، رمز و ارسال می‌شوند ولی در سامانه اصلی ثبت نمی‌شوند.' });
+        if (current === 'invoices' || current === 'invoice') render(current);
+      } catch (x) { e.textContent = x.message; $('#srvp', d.box).value = ''; $('#srvp', d.box).focus(); }
+      finally { st.busy = false; btn.classList.remove('busy'); }
+    };
+    $('#srvgo', d.box).onclick = go1;
+    $('#srvf', d.box).onsubmit = ev => { ev.preventDefault(); go1(); };
+  }
+  function account() {
+    const s = st.stuff || {};
+    const d = dialog(`<div class="dh"><div class="t18 w5">سرور لاجورد</div><button class="ib" data-close aria-label="بستن">${ic('x', 14)}</button></div>
+      <div class="db"><div class="kv"><b>کاربر</b><span class="lat">${esc(st.user)}</span></div>
+        <div class="kv"><b>محیط</b><span>${st.mode === 'live' ? 'سامانه مودیان' : 'محیط آزمایشی (شبیه‌ساز مستقل سامانه مودیان)'}</span></div>
+        <div class="kv"><b>حافظه مالیاتی</b><span class="lat">${esc(st.mem || '—')}</span></div>
+        <div class="kv"><b>بانک شناسه کالا</b><span>${s.source === 'db' ? `کامل، ${fa(s.ids)} شناسه${s.asof ? `، تا ${fa(String(s.asof).replace(/(\d{4})(\d\d)(\d\d)/, '$1/$2/$3'))}` : ''}` : 'نمونه'}</span></div>
+        <div class="kv"><b>صورتحساب‌های این مرورگر</b><span class="n">${fa(tracked().length)}</span></div></div>
+      <div class="df"><button class="btn" id="srvsync">${ic('refresh', 14)}همگام‌سازی</button><button class="btn" id="srvout">خروج</button><button class="btn" data-close>بستن</button></div>`, { label: 'سرور لاجورد' });
+    $('#srvsync', d.box).onclick = async e => { const b = e.currentTarget; b.classList.add('busy'); try { await sync(); } finally { b.classList.remove('busy'); } };
+    $('#srvout', d.box).onclick = async () => { try { await api('POST', '/logout'); } catch (e) { /* the cookie is cleared by the server; offline is fine too */ } st.on = false; stop(); paint(); d.close(); toast({ k: 'neu', t: 'از سرور لاجورد خارج شدید', b: 'صورتحساب‌های جدید فقط در همین نمایش ساخته می‌شوند.' }); };
+  }
+
+  async function me() {
+    const m = await api('GET', '/me');
+    Object.assign(st, { on: true, user: m.username, mode: m.mode, mem: m.memoryId, stuff: m.stuff });
+    paint(); start(); poll();
+  }
+
+  /* status of the invoices issued through the server */
+  function apply(v, x) {
+    const was = { send: v.send, react: v.react && v.react.k };
+    v.srv = { ...v.srv, state: x.state, reaction: x.reaction || null, errors: x.errors || [], warnings: x.warnings || [], ref: x.packet && x.packet.reference_number, error: x.packet && x.packet.last_error };
+    v.taxid = x.taxid;
+    if (x.reaction === 'CANCELED') v.send = 'void';
+    else v.send = STATE[x.state] || 'queue';
+    v.react = x.state === 'success' ? (REACT[x.reaction] || REACT.AWAITING_REACTION)() : null;
+    if (was.send !== v.send) {
+      if (v.send === 'ok') {
+        S.sent.ok++;
+        if (v.tag === 'ابطالی') { const rf = invByNo(v.ref); if (rf && !rf.srv) rf.send = 'void'; }
+        toast({ k: 'ok', t: `صورتحساب ${fa(invNo(v))} در سامانه مودیان ثبت شد`, b: `${v.react && v.react.k === 'wait' ? 'منتظر واکنش خریدار' : 'واکنش خریدار لازم نیست'}؛ شماره مالیاتی <span class="lat">${esc(v.taxid)}</span>`, act: { label: 'دیدن', fn: () => openInv(v.no) } });
+      } else if (v.send === 'fail') {
+        S.sent.bad++;
+        const e0 = (x.errors || [])[0];
+        toast({ k: 'bad', t: x.state === 'blocked' ? `ارسال صورتحساب ${fa(invNo(v))} متوقف شد` : `سامانه صورتحساب ${fa(invNo(v))} را رد کرد`, b: x.state === 'blocked' ? esc(v.srv.error || 'پس از چند تلاش ارسال نشد؛ از صفحه صورتحساب دوباره بفرستید.') : e0 ? `${e0.code ? `<span class="lat">${esc(e0.code)}</span>: ` : ''}${esc(e0.message)}` : 'جزئیات در صفحه صورتحساب است.', act: { label: 'دیدن', fn: () => openInv(v.no) } });
+      }
+    } else if (was.react !== (v.react && v.react.k) && v.react && v.react.k !== 'wait') toast({ k: v.react.k === 'rej' ? 'bad' : 'ok', t: `واکنش خریدار به صورتحساب ${fa(invNo(v))}`, b: v.react.k === 'rej' ? 'رد شد' : 'تأیید شد' });
+  }
+  async function poll() {
+    if (!st.on) return;
+    const L = tracked().filter(v => !final(v)).slice(0, 25);
+    let changed = false;
+    for (const v of L) {
+      try { const x = await api('GET', `/invoices/${v.srv.id}`); const k = JSON.stringify([v.send, v.react, v.srv.state]); apply(v, x); if (k !== JSON.stringify([v.send, v.react, v.srv.state])) changed = true; }
+      catch (e) { if (e.status === 404) { v.srv.gone = true; v.srv.state = 'failed'; } if (!st.on) return; }
+    }
+    if (changed) { save(); emit('state'); if (current === 'invoice' || current === 'invoices') { const pg = $('#page'); if (pg && !dialogs.length) render(current); } }
+  }
+  function start() { stop(); st.timer = setInterval(() => { if (!document.hidden) poll(); }, 8000); }
+  function stop() { if (st.timer) clearInterval(st.timer); st.timer = 0; }
+  async function sync() {
+    if (!st.on) return;
+    try { await api('POST', '/sync'); } catch (e) { toast({ k: 'bad', t: 'همگام‌سازی سرور انجام نشد', b: esc(e.message) }); return; }
+    await poll(); S.syncAt = 'همین حالا'; emit('state');
+  }
+
+  /* the invoice built by the page (invoiceJson) → the server's draft; the server computes and checks everything again */
+  const PH = ['sbc', 'ft', 'bpn', 'scln', 'scc', 'cdcn', 'cdcd', 'crn', 'billid', 'tinc', 'lno', 'lrno', 'ocu', 'oci', 'dco', 'dci', 'tid', 'rid', 'lt', 'cno', 'did', 'sg', 'asn', 'asd', 'in', 'an', 'tax17', 'nti1', 'nti2'];
+  function draftOf(J, D, B) {
+    const h = J.header, out = { inty: D.inty, inp: D.inp, ins: D.ins };
+    if (h.irtaxid) out.irtaxid = h.irtaxid;
+    // the demo lives on a fixed day (TODAY); the server lives now: a date moved from TODAY keeps its distance
+    const off = jMs(D.date, D.time) - jMs(TODAY, NOW);
+    if (Math.abs(off) >= 60000) out.indatim = Date.now() + off;
+    for (const k of ['setm', 'cap', 'insp']) if (h[k] !== undefined) out[k] = h[k];
+    if (h.tob !== undefined || h.bid || h.tinb) out.buyer = { tob: h.tob, bid: h.bid, tinb: h.tinb, bpc: h.bpc, bbc: h.bbc, bpn: h.bpn, name: B ? B.n : undefined };
+    out.header = {}; for (const k of PH) if (h[k] !== undefined) out.header[k] = h[k];
+    out.lines = (J.body || []).map(r => ({ ...r }));
+    out.payments = J.payments || [];
+    return out;
+  }
+  const hash = s => { let x = 2166136261; for (let i = 0; i < s.length; i++) { x ^= s.charCodeAt(i); x = Math.imul(x, 16777619) >>> 0; } return x.toString(36); };
+  /** Issue on the server; the same invoice sent twice (a retried click) returns the one already issued. */
+  function issue(J, D, B, no) {
+    const draft = draftOf(J, D, B);
+    return api('POST', '/invoices', draft, { 'idempotency-key': `demo:${no}:${hash(JSON.stringify(draft))}` });
+  }
+  function track(v) { save(); if (st.on) setTimeout(poll, 2500); }
+  /** Invoices issued through the server in this browser come back after a reload (status refreshed after sign-in). */
+  function restore() {
+    let L = []; try { L = JSON.parse(store.get(KEY) || '[]'); } catch (e) { L = []; }
+    for (const v of Array.isArray(L) ? L : []) if (v && v.srv && v.no != null && !invByNo(v.no)) S.inv.push(v);
+  }
+  /** The server's part of an invoice page: state, tracking number and the instruction's errors and warnings. */
+  const LABEL = { queued: 'در صف ارسال', sending: 'در حال ارسال', in_progress: 'در حال پردازش سامانه', success: 'ثبت‌شده در سامانه', failed: 'رد سامانه', blocked: 'ارسال متوقف شد' };
+  function box(v) {
+    const s = v.srv || {}, kv = (k, val) => `<div class="kv"><b>${k}</b><span style="justify-self:start">${val}</span></div>`;
+    const rows = (L, cls) => L.slice(0, 30).map(r => `<div class="srv-e ${cls}"><span class="lat">${esc(r.code)}</span><span>${esc(r.message)}</span><span class="t12 c3">${esc(r.rule || '')}</span></div>`).join('');
+    return `${kv('سرور لاجورد', `${LABEL[s.state] || esc(s.state || '—')}${st.on ? '' : '، <span class="c3">وارد نشده‌اید</span>'}`)}${s.ref ? kv('شماره پیگیری', `<span class="lat">${esc(s.ref)}</span>`) : ''}
+      ${s.state === 'blocked' && s.error ? kv('علت توقف', esc(s.error)) : ''}
+      ${(s.errors || []).length ? `<div class="srv-errs">${rows(s.errors, '')}</div>` : ''}${(s.warnings || []).length ? `<div class="t12 c3" style="margin-top:8px">هشدارهای دستورالعمل</div><div class="srv-errs">${rows(s.warnings, 'w')}</div>` : ''}`;
+  }
+  async function retry(v) { await api('POST', `/invoices/${v.srv.id}/retry`); await sync(); }
+  /** The connection test of the profile page, against the server's real connection. */
+  const test = () => api('POST', '/connection/test');
+  async function init() {
+    restore();
+    const b = $('#srvb'); if (b) b.onclick = open;
+    try { const r = await fetch('/api/health', { cache: 'no-store' }); const j = r.ok ? await r.json() : null; st.avail = !!(j && j.service === 'lajvard-backend'); } catch (e) { st.avail = false; }
+    if (!st.avail) return;
+    paint();
+    try { await me(); } catch (e) { /* not signed in */ }
+  }
+  return { init, open, issue, track, sync, poll, box, retry, test, available: () => st.avail, on: () => st.on, mode: () => st.mode, esc };
+})();
+
 /* ---------- boot ---------- */
 function boot() {
   const t = store.get('lj-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
   shell(); themeIcon(); Guide.init(); badges();
   try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { themeIcon(); emit('theme'); }); } catch (e) {}
   addEventListener('hashchange', () => { const h = fromHash(); if (h !== current) render(h); });
+  SRV.init();
   render(fromHash());
 }
 
@@ -3045,9 +3220,10 @@ const invBuyerId = v => { const p = invParty(v); return p ? p.econ || p.nid || '
 S.syncAt = 'امروز ۰۶:۰۰';
 async function syncMoa(list, btn) {
   if (btn) await busy(btn, 1300, 'همگام‌سازی');
+  if (SRV.on()) await SRV.sync();
   const out = [];
   list.forEach(v => {
-    if (v.src === 'import' || v.send === 'draft' || v.send === 'queue' || v.send === 'fail') return;
+    if (v.srv || v.src === 'import' || v.send === 'draft' || v.send === 'queue' || v.send === 'fail') return;
     if (v.send === 'prog') { v.send = 'ok'; v.react = { k: 'wait', d: 0 }; S.sent.prog = Math.max(0, S.sent.prog - 1); S.sent.ok++; out.push(`${fa(invNo(v))}: در سامانه ثبت شد`); return; }
     if (v.send === 'ok' && v.react && v.react.k === 'wait' && v.react.d >= 4) { v.react = { k: 'ok' }; S.reacts.wait = Math.max(0, S.reacts.wait - 1); S.reacts.ok++; out.push(`${fa(invNo(v))}: خریدار تأیید کرد`); }
   });
@@ -3072,7 +3248,7 @@ function ctxMenu(e, opts) {
     const L = invLines(v), p = invParty(v), noTax = v.send === 'draft' || v.send === 'queue', setm = invSetm(v);
     const T = L.reduce((a, r) => ({ prdis: a.prdis + r.prdis, dis: a.dis + r.dis, adis: a.adis + r.adis, vam: a.vam + r.vam, tbill: a.tbill + r.tsstam }), { prdis: 0, dis: 0, adis: 0, vam: 0, tbill: 0 });
     const kv = (k, val, cls = '') => `<div class="kv"><b>${k}</b><span class="${cls}" style="justify-self:start">${val}</span></div>`;
-    const acts = v.send === 'fail' ? `<button class="btn pri" data-a="fix">رسیدگی به رد</button>`
+    const acts = v.send === 'fail' ? (v.srv ? `<button class="btn pri" data-a="srvnew">صدور صورتحساب اصلاح‌شده</button>${v.srv.state === 'blocked' ? `<button class="btn" data-a="srvretry">${ic('send', 16)}ارسال دوباره</button>` : ''}` : `<button class="btn pri" data-a="fix">رسیدگی به رد</button>`)
       : v.send === 'draft' ? `<button class="btn pri" data-a="edit">ادامه ویرایش</button>`
       : v.send === 'queue' ? `<button class="btn pri" data-a="sendnow">${ic('send', 16)}ارسال فوری</button>`
       : v.send === 'ok' && v.src !== 'import' ? `<button class="btn" data-a="r2">صدور اصلاحی</button><button class="btn" data-a="r4">برگشت از فروش</button>` : '';
@@ -3094,7 +3270,7 @@ function ctxMenu(e, opts) {
       <section class="card iv-t rv" style="--r:3">
         <div class="iv-sum"><div class="t12 c3">مجموع صورتحساب</div><div style="display:flex;align-items:baseline;gap:8px;margin-top:4px"><span class="t32 n cp">${num(v.total)}</span><span class="t13 c3">ریال</span></div><div class="t13 c3" style="margin-top:4px">${words(v.total)} ریال</div>
           <div class="kv2" style="margin-top:12px"><span class="c2">مجموع مالیات بر ارزش افزوده</span><span class="n">${num(v.tax)}</span></div><div class="kv2"><span class="c2">مجموع تخفیفات</span><span class="n">${num(T.dis)}</span></div></div>
-        <div class="iv-moa"><div class="iv-st">سامانه مودیان</div>${kv('وضعیت ارسال', sendChip(v))}${kv('واکنش خریدار', reactChip(v))}${kv('آخرین همگام‌سازی', S.syncAt)}</div>
+        <div class="iv-moa"><div class="iv-st">سامانه مودیان</div>${kv('وضعیت ارسال', sendChip(v))}${kv('واکنش خریدار', reactChip(v))}${kv('آخرین همگام‌سازی', S.syncAt)}${v.srv ? SRV.box(v) : ''}</div>
       </section>
     </div>`;
   }
@@ -3107,9 +3283,12 @@ function ctxMenu(e, opts) {
       if (a === 'print') return notInDemo('چاپ صورتحساب');
       if (a === 'copy') return copy(taxParts(v).join(''), 'شماره مالیاتی کپی شد');
       if (a === 'fix') return go('rejected');
+      if (a === 'srvnew') return go('new-invoice');
+      if (a === 'srvretry') { b.classList.add('busy'); try { await SRV.retry(v); } catch (e) { toast({ k: 'bad', t: 'ارسال دوباره ممکن نشد', b: SRV.esc(e.message) }); } return rerender(root); }
       if (a === 'edit') return go('new-invoice');
       if (a === 'r2' || a === 'r4') return go('new-invoice', { ref: v.no, ins: +a[1] });
       if (a === 'sync') { await syncMoa([v], b); return rerender(root); }
+      if (a === 'sendnow' && v.srv) { await busy(b, 600, 'ارسال'); await SRV.sync(); return rerender(root); }
       if (a === 'sendnow') { await busy(b, 1000, 'ارسال'); v.send = 'prog'; rerender(root); await wait(1600); v.send = 'ok'; v.react = { k: 'wait', d: 0 }; S.sent.ok++; emit('state'); rerender(root); toast({ k: 'ok', t: `صورتحساب ${fa(invNo(v))} در سامانه ثبت شد`, b: 'شماره مالیاتی تأیید شد؛ منتظر واکنش خریدار.' }); }
     };
   }
@@ -4040,6 +4219,7 @@ function ctxMenu(e, opts) {
     $$('.fzt button', d.box).forEach(b => b.onclick = () => { $$('.fzt button', d.box).forEach(x => x.classList.toggle('on', x === b)); $('#fzs', d.box).hidden = b.dataset.v !== 's'; $('#fzj', d.box).hidden = b.dataset.v !== 'j'; });
     $('#fzcp', d.box).onclick = () => copy(JSON.stringify(J), 'ساختار JSON کپی شد');
     $('#fzgo').onclick = async () => {
+      if (SRV.on()) return srvSend(d, J, no, B, T);
       const steps = [`تخصیص شماره ${no}`, 'ساخت شماره مالیاتی', `امضا با گواهی حافظه ${CO.mem}`, 'قرار گرفتن در صف ارسال'];
       const ck = '<svg width="14" height="14" viewBox="0 0 24 24" class="i" style="stroke-width:2.4"><path d="M20 6 9 17l-5-5"/></svg>';
       $('#fzf').innerHTML = ''; const body = $('#fzb');
@@ -4059,6 +4239,41 @@ function ctxMenu(e, opts) {
       setTimeout(() => { inv.send = 'prog'; emit('state'); }, 5000);
       setTimeout(() => { inv.send = 'ok'; inv.react = noReact ? { k: 'na' } : { k: 'wait', d: 0 }; S.sent.ok++; if (inv.tag === 'ابطالی') { const rf = invByNo(inv.ref); if (rf) rf.send = 'void'; } /* a registered cancelling invoice voids its reference */ emit('state'); toast({ k: 'ok', t: `صورتحساب ${fa(no)} در سامانه مودیان ثبت شد`, b: noReact ? 'وضعیت SUCCESS؛ واکنش خریدار لازم نیست.' : 'وضعیت SUCCESS؛ منتظر واکنش خریدار.', act: { label: 'دیدن', fn: () => go('invoices', { peek: no }) } }); }, 10000);
     };
+  }
+
+  /* finalize on the Lajvard server: the same JSON goes to the backend, which checks it against the instruction, gives
+     the serial and the tax ID, signs, encrypts and queues it; the result of the tax system comes back by status. */
+  async function srvSend(d, J, no, B, T) {
+    const body = $('#fzb'), foot = $('#fzf'), E = SRV.esc;
+    const steps = ['ارسال به سرور لاجورد', 'کنترل با قواعد دستورالعمل', 'سریال و شماره مالیاتی', 'امضا، رمز و صف ارسال'];
+    const ck = '<svg width="14" height="14" viewBox="0 0 24 24" class="i" style="stroke-width:2.4"><path d="M20 6 9 17l-5-5"/></svg>';
+    foot.innerHTML = '';
+    body.innerHTML = steps.map((s, i) => `<div class="st" data-s="${i}"><span class="ck">${ck}</span><span>${fa(s)}</span><span class="t12 c3" data-x="${i}"></span></div>`).join('');
+    const mark = (i, on) => { const el = $(`.st[data-s="${i}"]`, body); if (!el) return; el.classList.toggle('on', on); if (!on) el.classList.add('ok'); };
+    mark(0, true);
+    let x;
+    try { x = await SRV.issue(J, D, B, no); }
+    catch (e) {
+      const errs = (e.body && e.body.errors) || [], warns = (e.body && e.body.warnings) || [];
+      const list = errs.length ? `<div class="srv-errs">${errs.slice(0, 30).map(r => `<div class="srv-e"><span class="lat">${E(r.code)}</span><span>${E(r.message)}</span><span class="t12 c3">${E(r.rule || '')}</span></div>`).join('')}</div>` : '';
+      body.innerHTML = `<div class="t18 w5" style="margin-bottom:4px">${e.status === 422 ? 'سرور صورتحساب را نپذیرفت' : 'صورتحساب صادر نشد'}</div>
+        <div class="t13 c3" style="margin-bottom:12px">${e.status === 422 ? `${fa(errs.length)} خطا${warns.length ? ` و ${fa(warns.length)} هشدار` : ''} با قواعد دستورالعمل؛ شماره‌ای مصرف نشد. اصلاح کنید و دوباره نهایی کنید.` : E(e.message)}</div>${list}`;
+      foot.innerHTML = '<button class="btn pri" data-close>بازگشت به ویرایش</button>';
+      return;
+    }
+    for (let i = 0; i < steps.length; i++) { mark(i, true); await wait(260); mark(i, false); if (i === 2) $('[data-x="2"]', body).innerHTML = `<span class="code" style="font-size:12px">${E(x.taxid)}</span>`; }
+    const warns = x.warnings || [];
+    body.innerHTML = `<div style="text-align:center;padding:8px 0 4px"><div class="big"><svg width="30" height="30" viewBox="0 0 24 24" class="i" style="stroke-width:2.2"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <div class="t18 w5">صورتحساب ${fa(no)} روی سرور صادر شد</div>
+      <div class="t13 c3" style="margin-top:4px">شماره مالیاتی <span class="lat">${E(x.taxid)}</span>؛ در صف ارسال به ${SRV.mode() === 'live' ? 'سامانه مودیان' : 'محیط آزمایشی سامانه مودیان'} است و نتیجه را همین‌جا خبر می‌دهیم.</div>
+      ${warns.length ? `<div class="t12 cwarn" style="margin-top:8px">${fa(warns.length)} هشدار دستورالعمل؛ در صفحه صورتحساب دیده می‌شود.</div>` : ''}</div>`;
+    foot.innerHTML = '<button class="btn pri" id="fzsee">دیدن در فهرست</button><button class="btn" data-close>ماندن در همین صفحه</button>';
+    const inv = { no, buyer: B ? B.n : 'بدون خریدار', date: D.date, kind: B ? (B.tob ? TOB[B.tob] : 'خارجی') : 'بدون خریدار', type: patLabel(D.inty, D.inp), inty: D.inty, inp: D.inp, setm: nonI('setm') ? D.setm : null, pid: B ? B.id : null, total: T.tbill, tax: T.tvam, send: 'queue', react: null, tag: D.ins !== 1 ? SUBJ[D.ins] : undefined,
+      time: D.time, ref: D.ref ? D.ref.no : undefined, pf: JSON.parse(JSON.stringify(D.pf || {})), refRows: D.rows.map(({ id, open, src, ref, ...r }) => r),
+      taxid: x.taxid, mem: x.taxid.slice(0, 6), srv: { id: x.id, state: x.state, reaction: null, errors: [], warnings: warns } };
+    S.inv.push(inv); S.finalized = no; D.done = { no }; emit('state'); SRV.track(inv);
+    $('#fzsee').onclick = () => { d.close(); go('invoices', { peek: no }); };
+    if (current === 'new-invoice') { const pg = $('#page'); pg.innerHTML = render(); hyd(pg); bind(pg); }
   }
 
   /* ---------- events ---------- */
@@ -4628,6 +4843,13 @@ function ctxMenu(e, opts) {
     $('#pedit', root).onclick = edit;
     $('#medit', root).onclick = moaEdit;
     $('#mtest', root).onclick = async e => {
+      if (SRV.on()) {
+        const btn = e.currentTarget; btn.classList.add('busy');
+        try { const r = await SRV.test(); S.moa.conn = r.ok ? 'ok' : 'bad'; S.moa.at = 'همین حالا'; refresh(); emit('state'); toast(r.ok ? { k: 'ok', t: 'اتصال سرور به سامانه مودیان برقرار است', b: `حافظه <span class="lat">${SRV.esc(r.fiscal && r.fiscal.nameTrade || '')}</span>، وضعیت <span class="lat">${SRV.esc(r.fiscal && r.fiscal.fiscalStatus || '')}</span>` } : { k: 'bad', t: 'اتصال برقرار است ولی ایراد دارد', b: SRV.esc((r.issues || []).join('؛ ')) }); }
+        catch (x) { S.moa.conn = 'bad'; refresh(); toast({ k: 'bad', t: 'اتصال سرور به سامانه مودیان برقرار نشد', b: SRV.esc(x.message) }); }
+        finally { btn.classList.remove('busy'); }
+        return;
+      }
       await busy(e.currentTarget, 1200, 'آزمون اتصال');
       if (!memOk(CO.mem) || !S.moa.key) { S.moa.conn = 'bad'; refresh(); return toast({ k: 'bad', t: 'اتصال برقرار نشد', b: 'شناسه حافظه مالیاتی و کلید خصوصی را بررسی کنید.' }); }
       S.moa.conn = 'ok'; S.moa.at = 'همین حالا'; refresh(); emit('state');
