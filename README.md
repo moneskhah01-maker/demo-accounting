@@ -8,9 +8,30 @@ Live: https://demo.mouneskhah.com (noindex)
 
 | File | What it is |
 | --- | --- |
-| `index.html` | The whole demo: one self-contained page (HTML, CSS, JavaScript, fonts and images embedded; the only external request is the SheetJS library from cdnjs, loaded when a real Excel file is imported). Persian, RTL. This is the version to serve in production: v11, SHA-256 `ee57372adc09ceec5dadeb08149a96691d47b66fd42d3e1e31ef2706f1333851`, updated 2026-11-18. The previous version, v10, was `b4336ed8d17f7acf842a76af74968b62f9a9f86cb6aead413f8d2899bb3fe0e7`. |
+| `index.html` | The whole demo: one self-contained page (HTML, CSS, JavaScript, fonts and images embedded; the only external request is the SheetJS library from cdnjs, loaded when a real Excel file is imported). Persian, RTL. This is the version to serve in production: v12, SHA-256 `109db0b079c0f0bda131cef2df109eb6e22ff1a41632facd32ed57e023ae2d4a`, updated 2026-11-19. The previous versions were v11 `ee57372adc09ceec5dadeb08149a96691d47b66fd42d3e1e31ef2706f1333851` and v10 `b4336ed8d17f7acf842a76af74968b62f9a9f86cb6aead413f8d2899bb3fe0e7`. |
 | `deploy/nginx-demo.mouneskhah.com.conf` | The nginx site that serves it: static files from `/var/www/demo`, Let's Encrypt certificate, `X-Robots-Tag: noindex, nofollow`, `Cache-Control: no-cache`. It includes `snippets/lajvard-api.conf`. |
 | `deploy/nginx-lajvard-api.snippet.conf` | `/api/` on the same origin, proxied to the Lajvard backend at `127.0.0.1:4317`, with rate limits. The zones `lajvard_api` and `lajvard_login` are in `/etc/nginx/conf.d/lajvard.conf`. Only `/api/` is exposed, so the sandbox simulator is not. |
+
+## v12 (2026-11-19)
+
+This version makes the changes the client asked for on 28 Aban 1405.
+
+- **Moadian settings without a password or a certificate.**
+  - The connection needs only two things: the memory ID and the private key file, whose public key is registered for that memory ID in the taxpayer portal.
+  - This is the official no-certificate web service (`/req/api/self-tsp`), the method of the official «بدون گواهی امضا» SDK.
+  - A password field appears only if the chosen key file is itself encrypted.
+  - **Settings** and the profile card «تنظیمات سامانه مودیان» open the same editor.
+  - Two options are folded away in the editor: making a new key on the server (its public key is shown for the portal), and a signing certificate (key and certificate, or PFX) for anyone who has one.
+  - The connection test shows its three steps: the system's key and clock, authentication with the key, and the memory ID inquiry.
+- **«سامانه مودیان» is the send queue.**
+  - Issued invoices wait here as «آماده ارسال», with their Article 9 deadline.
+  - They are sent one at a time, as a selection, or all together. Results appear under «در حال ارسال», «ثبت‌شده» (with the tax ID and the system's tracking number) and «رد یا متوقف».
+  - Invoices another program already sent are imported here from the portal's Excel export.
+  - «همه صورتحساب‌ها» stays the full list. In Settings, «ارسال پس از صدور» chooses between collecting here and sending at once.
+- **«دریافت‌ها»** records receipts of credit and cash/credit invoices after they are issued: amount, date, method and reference. The balance due updates at once, and no receipt may exceed it.
+- **Goods** defined on the page are saved on the server too. When signed in, an ID is checked against the server's full goods bank of 966,886 IDs.
+- **«همه صورتحساب‌ها» columns line up again.** Each row's entry-animation class `in` was also the global input-field class (a flex box 40 px tall, with a border). The rows stopped being grids, so their cells no longer sat under the header. The animation class is now `rin`; the rows of a new invoice had the same fault.
+- Texts that spoke of a signing certificate (reminders, signing steps) now speak of the private key.
 
 ## Settings (v11)
 
