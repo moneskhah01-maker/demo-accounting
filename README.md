@@ -8,9 +8,23 @@ Live: https://demo.mouneskhah.com (noindex)
 
 | File | What it is |
 | --- | --- |
-| `index.html` | The whole demo: one self-contained page (HTML, CSS, JavaScript, fonts and images embedded; the only external request is the SheetJS library from cdnjs, loaded when a real Excel file is imported). Persian, RTL. This is the version to serve in production: v12, SHA-256 `109db0b079c0f0bda131cef2df109eb6e22ff1a41632facd32ed57e023ae2d4a`, updated 2026-11-19. The previous versions were v11 `ee57372adc09ceec5dadeb08149a96691d47b66fd42d3e1e31ef2706f1333851` and v10 `b4336ed8d17f7acf842a76af74968b62f9a9f86cb6aead413f8d2899bb3fe0e7`. |
+| `index.html` | The whole demo: one self-contained page (HTML, CSS, JavaScript, fonts and images embedded; the only external request is the SheetJS library from cdnjs, loaded when a real Excel file is imported). Persian, RTL. This is the version to serve in production: v13, SHA-256 `64a30f9295073f61447784f708412af6462efb5fb1b499fceed76ff5e92e68e6`, updated 2026-11-19. The previous versions were v12 `109db0b079c0f0bda131cef2df109eb6e22ff1a41632facd32ed57e023ae2d4a`, v11 `ee57372adc09ceec5dadeb08149a96691d47b66fd42d3e1e31ef2706f1333851` and v10 `b4336ed8d17f7acf842a76af74968b62f9a9f86cb6aead413f8d2899bb3fe0e7`. |
 | `deploy/nginx-demo.mouneskhah.com.conf` | The nginx site that serves it: static files from `/var/www/demo`, Let's Encrypt certificate, `X-Robots-Tag: noindex, nofollow`, `Cache-Control: no-cache`. It includes `snippets/lajvard-api.conf`. |
 | `deploy/nginx-lajvard-api.snippet.conf` | `/api/` on the same origin, proxied to the Lajvard backend at `127.0.0.1:4317`, with rate limits. The zones `lajvard_api` and `lajvard_login` are in `/etc/nginx/conf.d/lajvard.conf`. Only `/api/` is exposed, so the sandbox simulator is not. |
+
+## v13 (2026-11-19)
+
+This version makes the changes from the client's second call that day.
+
+- **«تنظیمات سامانه مودیان» holds the memory ID and the VAT liability only.**
+  - There is no private key, certificate, PFX or server-made key in it ("فعلاً").
+  - The server accepts a memory ID without a key. Invoices are issued and kept «آماده ارسال». Sending, the connection test and immediate sending wait for the key, which lives in a separate, closed card: «اتصال برای ارسال (مرحله بعد)».
+- **The taxpayer profile and parties are saved on the server.** Text stored there is plain text.
+- **«همه صورتحساب‌ها» no longer repeats** the system sync and the Excel-import buttons of «سامانه مودیان»; a single button leads there.
+- **Every table's columns line up.** The global number style (`.n`/`.lat` are left-to-right) made a cell holding only a number or a code align left under a right-aligned header. These cells now align right, under their header.
+  - It was found with an automatic audit of every table at widths from 768 to 1920 px.
+  - The dashboard's latest-invoices columns, the goods status column, the new-invoice row number and action columns, and the import tables were fixed too.
+- **The build checks that the page's script parses** before writing it.
 
 ## v12 (2026-11-19)
 
