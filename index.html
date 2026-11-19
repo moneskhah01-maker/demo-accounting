@@ -211,7 +211,7 @@ button.chip:hover{border-color:var(--ink-4)}
 .lr>.lat.ell,.lr>.n.ell{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .lr .m{min-width:0;overflow:hidden}
 .lr .m .ell{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lr>div>.chip,.lr>span>.chip{max-width:100%}
+.lr>div>.chip,.lr>span>.chip,.lr>.chip{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .lr .chip{min-width:0}
 .in{height:40px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 12px;border:1px solid var(--line-2);border-radius:8px;background:var(--card);font-size:14px;line-height:22px;white-space:nowrap;position:relative;min-width:0;transition:border-color var(--d1),box-shadow var(--d2)}
 .in>span{overflow:hidden;text-overflow:ellipsis;min-width:0}
@@ -449,8 +449,8 @@ pre.json b{font-weight:500;color:var(--pri)}
 .impd .irv{border:1px solid var(--line);border-radius:12px;overflow:hidden}
 .impd .irr{display:grid;grid-template-columns:132px 112px minmax(0,1fr) 150px 148px 20px;gap:12px;align-items:center;padding:10px 14px;width:100%;border:0;background:none;text-align:right;min-height:56px}
 .impd .irr.ih{min-height:36px;padding-block:8px;background:var(--soft);font-size:12px;line-height:18px;color:var(--ink-3)}
-.impd .irr .am{text-align:left}
-.impd .irr.ih span:nth-child(4){text-align:left}
+.impd .irr .am{text-align:right}
+.impd .irr.ih span:nth-child(4){text-align:right}
 .impd .irw{border-top:1px solid var(--line)}
 .impd button.irr{cursor:pointer}
 .impd button.irr:hover{background:var(--soft-2)}
@@ -1541,12 +1541,12 @@ button.pdc:hover{background:var(--soft-2)}
 .pg-items{grid-template-columns:minmax(0,1fr)}
 /* invoices: one line per invoice, every column, sideways scroll; the side preview is gone */
 .pg-inv,.pg-inv.nopeek{grid-template-columns:minmax(0,1fr)}
-.pg-inv .lh,.pg-inv .lr{grid-template-columns:20px 64px 92px minmax(200px,1fr) 76px 132px 214px 132px 96px 84px 44px 136px 120px 140px 124px 172px 92px}
+.pg-inv .lh,.pg-inv .lr{grid-template-columns:20px 64px 92px minmax(200px,1fr) 76px 132px 214px 132px 96px 84px 44px 136px 120px 140px 136px 172px 92px}
 .pg-inv .txid{min-width:0}
 .pg-inv .txid .lat{font-size:12px;line-height:18px;letter-spacing:.02em;white-space:nowrap}
 .pg-inv .lr>.t13,.pg-inv .lr>.n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 @media (max-width:719px){
-  .pg-inv .lh{display:grid}
+  .pg-inv .lh{display:grid;padding:0 12px;column-gap:12px}
   .pg-inv .lr{display:grid;height:56px;padding:0 12px;gap:0 12px}
   .pg-inv .lr>:nth-child(5),.pg-inv .lr>.am:nth-child(3){order:0;margin-inline-start:0}
   .pg-inv .lr>:nth-child(6),.pg-inv .lr>.am:nth-child(4){display:block}
@@ -1561,6 +1561,10 @@ button.pdc:hover{background:var(--soft-2)}
 .pg-iv .iv-m{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 32px;padding:20px 24px}
 .pg-iv .iv-st{font-size:13px;line-height:20px;font-weight:500;color:var(--ink-2);margin-bottom:6px}
 .pg-iv .kv{grid-template-columns:150px minmax(0,1fr)}
+.pg-iv .kv>span{min-width:0;max-width:100%}
+.pg-iv .kv .code{display:inline-flex;flex-wrap:wrap;justify-content:flex-end;row-gap:2px;max-width:100%}
+.pg-iv .kv>span>.chip{max-width:100%}
+@media (max-width:1099px){.pg-iv .kv{grid-template-columns:132px minmax(0,1fr)}}
 .pg-iv .iv-it .lh,.pg-iv .iv-it .lr{grid-template-columns:32px minmax(220px,1fr) 64px 72px 112px 128px 104px 128px 52px 112px 136px;column-gap:10px}
 .pg-iv .iv-it .lr{min-height:56px}
 .pg-iv .iv-it .tot{background:var(--soft);font-weight:500}
@@ -1728,7 +1732,7 @@ const INV = [
   { no: 1042, buyer: 'شرکت مهندسی سازه‌گستر البرز', date: '1405/08/14', kind: 'حقوقی', type: 'نوع اول، فروش', total: 5445000000, tax: 495000000, send: 'ok', react: { k: 'wait', d: 4 } },
   { no: 1041, buyer: 'دفتر فنی مهندسی نقش‌آفرین', date: '1405/08/14', kind: 'حقوقی', type: 'نوع اول، فروش', total: 165000000, tax: 15000000, send: 'ok', react: { k: 'ok' } }
 ];
-const SEND = { held: ['warn', 'آماده ارسال'], queue: ['neu', 'در صف ارسال'], prog: ['prog', 'در حال بررسی'], ok: ['ok', 'ثبت شد'], fail: ['bad', 'رد سامانه'], draft: ['neu', 'پیش‌نویس'], void: ['neu', 'ابطال‌شده'] };
+const SEND = { held: ['warn', 'آماده ارسال'], disc: ['neu', 'باطل پیش از ارسال'], queue: ['neu', 'در صف ارسال'], prog: ['prog', 'در حال بررسی'], ok: ['ok', 'ثبت شد'], fail: ['bad', 'رد سامانه'], draft: ['neu', 'پیش‌نویس'], void: ['neu', 'ابطال‌شده'] };
 const sendChip = v => chip(SEND[v.send][0], SEND[v.send][1], v.send === 'draft' ? 'off' : '');
 function reactChip(v) {
   const r = v.react; if (!r) return '<span class="c4 t13">\u2014</span>';
@@ -1739,7 +1743,7 @@ function reactChip(v) {
   return '<span class="t13 c3 nw">نیاز به واکنش ندارد</span>';
 }
 // Real structure (RC_DCPS.SN, as the SDK builds it): memory ID, Unix day in hex, serial in hex, Verhoeff digit
-const taxParts = v => (v.taxid ? [v.taxid.slice(0, 6), v.taxid.slice(6, 11), v.taxid.slice(11, 21), v.taxid.slice(21)] : taxIdParts(CO.mem, v.date, 0x4A1E0 + v.no));
+const taxParts = v => (v.taxid ? [v.taxid.slice(0, 6), v.taxid.slice(6, 11), v.taxid.slice(11, 21), v.taxid.slice(21)] : taxIdParts(CO.mem, v.date, 0x4A1E0 + v.no, v.time));
 // invoices imported from the Moadian Excel keep their own serial; newest issue date first everywhere
 const invNo = v => (v.ino != null ? v.ino : v.no);
 const invSort = (a, b) => (a.date === b.date ? b.no - a.no : a.date < b.date ? 1 : -1);
@@ -1907,7 +1911,7 @@ function shell() {
         <button class="ib burger" id="burger" aria-label="باز کردن منو">${ic('menu', 16)}</button>
         <div class="cmd" id="cmd" role="button" tabindex="0" aria-label="جست‌وجو و دستیار"><span class="fleck live"></span><span class="q0">بپرسید یا جست‌وجو کنید: صورتحساب، طرف‌حساب، کالا، الگو</span><kbd>Ctrl K</kbd></div>
         <div class="sp"></div>
-        <button class="conn" id="srvb" type="button" title="آخرین استعلام ۲ دقیقه پیش"><span class="livedot">${dot('ok')}</span><span class="lbl2">سامانه مودیان متصل است</span></button>
+        <button class="conn" id="srvb" type="button" title="ارسال به سامانه مودیان مرحله بعد است؛ صورتحساب‌ها صادر و آماده نگه داشته می‌شوند"><span class="livedot">${dot('neu')}</span><span class="lbl2">اتصال به سامانه: مرحله بعد</span></button>
         <div class="t13 c3 today">${CO.today}</div>
         <button class="btn sm fy" id="fy">سال مالی 1405${ic('down', 14)}</button>
         <button class="btn sm" id="co"><span class="co-name">${CO.name}</span><span class="av" style="width:22px;height:22px;font-size:11px;display:none" id="coav">آت</span>${ic('down', 14)}</button>
@@ -2001,7 +2005,7 @@ const Palette = (() => {
     ['dashboard', 'grid', 'داشبورد', 'کارهای امروز و خلاصه مالی'], ['invoices', 'invoice', 'همه صورتحساب‌ها', 'فهرست، فیلتر و پیش‌نمایش'],
     ['new-invoice', 'plus', 'صورتحساب جدید', 'صدور با کنترل زنده قواعد', 'N'], ['rejected', 'send', 'رسیدگی به رد سامانه', 'صورتحساب 1047'],
     ['profile', 'building', 'اطلاعات مودی', 'فروشنده، شعبه‌ها و الگوهای مجاز'], ['parties', 'users', 'طرف‌حساب‌ها', 'خریداران با الزام هر نوع شخص'],
-    ['items', 'box', 'کالا و خدمات', 'شناسه کالا، همگام با سامانه'], ['moadian', 'send', 'سامانه مودیان', 'صف ارسال، نتیجه سامانه، ورود از اکسل'], ['receipts', 'wallet', 'دریافت‌ها', 'دریافت صورتحساب نسیه پس از صدور'], ['settings', 'sliders', 'تنظیمات', 'اتصال به سامانه مودیان، کلید، ارسال'], ['design-system', 'layers', 'سیستم طراحی', 'رنگ، حروف، اجزا و حرکت']];
+    ['items', 'box', 'کالا و خدمات', 'شناسه کالا، همگام با سامانه'], ['moadian', 'send', 'سامانه مودیان', 'صف ارسال، نتیجه سامانه، ورود از اکسل'], ['receipts', 'wallet', 'دریافت‌ها', 'دریافت صورتحساب نسیه پس از صدور'], ['settings', 'sliders', 'تنظیمات', 'شناسه حافظه، مشمولیت ارزش افزوده، ارسال'], ['design-system', 'layers', 'سیستم طراحی', 'رنگ، حروف، اجزا و حرکت']];
   const acts = [
     { icon: 'moon', label: 'تغییر تم روشن و تیره', fn: () => setTheme(isDark() ? 'light' : 'dark') },
     { icon: 'pin', label: 'نمایش نکات طراحی این صفحه', fn: () => Guide.start() },
@@ -2013,7 +2017,7 @@ const Palette = (() => {
     [/معوق|وصول|طلب/, 'مطالبات معوق 2,187,400,000 ریال است؛ 5 مورد بیش از 30 روز.', 'نرخ وصول آبان 82%، پایین‌ترین در شش ماه', 'invoices'],
     [/رد|خطا/, () => `${S.sent.bad} صورتحساب رد سامانه دارید. نسخه اصلاحی 1047 با 2 تغییر آماده است.`, 'خطای 012802 و هشدار 111208', 'rejected'],
     [/واکنش|خریدار/, '34 صورتحساب منتظر واکنش خریدارند؛ 6 مورد بیش از 7 روز.', 'پس از 15 روز تأیید سیستمی می‌شوند', 'invoices'],
-    [/گواهی|امضا|کلید/, 'اتصال با شناسه حافظه A3F9K2 و کلید خصوصی است؛ گذرواژه و گواهی امضا لازم نیست.', 'آزمون اتصال در تنظیمات', 'settings'],
+    [/گواهی|امضا|کلید/, 'در «تنظیمات سامانه مودیان» فقط شناسه حافظه و نوع مشمولیت ارزش افزوده لازم است؛ گذرواژه و گواهی امضا لازم نیست و کلید خصوصی فقط برای ارسال به سامانه، در مرحله بعد، ثبت می‌شود.', 'تنظیمات سامانه مودیان', 'settings'],
     [/شناسه|کالا|stuff/i, () => `امروز ساعت 06:00 بانک شناسه کالا همگام شد: 2 شناسه جدید و 1 شناسه اختصاصی منطبق با کالای شما. ${syncPending() ? `${syncPending()} تغییر منتظر تأیید شماست.` : 'همه تغییرها روی کالاهای شما اعمال شده است.'}`, 'همگام‌سازی خودکار، هر روز ساعت 06:00', 'items'],
     [/الگو|صادرات|پیمانکار/, 'نوع اول 12 الگو دارد و نوع دوم 4 الگو؛ اقلام هر الگو از جدول 1 دستورالعمل می‌آید.', 'برای دیدن تفاوت دو الگو، «مقایسه الگوها» را بزنید', 'new-invoice']];
   function open(q = '') {
@@ -2123,11 +2127,13 @@ addEventListener('keydown', e => {
 const SRV = (() => {
   const st = { avail: false, on: false, user: null, mode: null, mem: null, stuff: null, timer: 0, busy: false, conn: null, sys: null, csr: null, tp: null, sending: null };
   const KEY = 'lj-srv-inv';
-  const STATE = { held: 'held', queued: 'queue', sending: 'queue', in_progress: 'prog', success: 'ok', failed: 'fail', blocked: 'fail', discarded: 'void' };
+  const STATE = { held: 'held', queued: 'queue', sending: 'queue', in_progress: 'prog', success: 'ok', failed: 'fail', blocked: 'fail', discarded: 'disc' };
   const REACT = { AWAITING_REACTION: () => ({ k: 'wait', d: 0 }), APPROVED: () => ({ k: 'ok' }), SYSTEMIC_APPROVED: () => ({ k: 'sys' }), REJECTED: () => ({ k: 'rej' }), NO_NEED_REACTION: () => ({ k: 'na' }), IMPOSSIBLE_REACTION: () => ({ k: 'na' }) };
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const tracked = () => S.inv.filter(v => v.srv);
-  const save = () => store.set(KEY, JSON.stringify(tracked()));
+  // the server's invoices are not kept in the browser (they come from the server at every sign-in, for that user only);
+  // what older versions kept there is cleared at start
+  const save = () => {};
   const final = v => v.srv && (v.srv.state === 'failed' || v.srv.state === 'discarded' || (v.srv.state === 'success' && (st.conn && st.conn.method === 'key' || (v.srv.reaction && v.srv.reaction !== 'AWAITING_REACTION'))));
 
   async function api(method, path, body, headers = {}) {
@@ -2139,7 +2145,7 @@ const SRV = (() => {
     } catch (e) { throw Object.assign(new Error('اتصال به سرور لاجورد برقرار نشد'), { code: 'NETWORK' }); }
     const t = await r.text(); let j = null; try { j = t ? JSON.parse(t) : null; } catch (e) { j = null; }
     if (r.status === 401 && path !== '/login' && st.on) {
-      st.on = false; stop(); paint();
+      st.on = false; stop(); clock(); purge(); paint();
       toast({ k: 'bad', t: 'نشست سرور لاجورد تمام شد', b: 'دوباره وارد شوید؛ تا آن زمان صورتحساب‌ها فقط در همین نمایش ساخته می‌شوند.' });
     }
     if (!r.ok) throw Object.assign(new Error((j && j.error && j.error.message) || `خطای سرور لاجورد (${r.status})`), { status: r.status, code: j && j.error && j.error.code, body: j });
@@ -2150,14 +2156,14 @@ const SRV = (() => {
   function paint() {
     const b = $('#srvb'); if (!b || !st.avail) return;
     b.innerHTML = `<span class="livedot">${dot(st.on ? 'ok' : 'neu')}</span><span class="lbl2">${st.on ? `سرور لاجورد، ${st.mode === 'live' ? 'سامانه مودیان' : 'محیط آزمایشی'}` : 'ورود به سرور لاجورد'}</span>`;
-    b.title = st.on ? `${st.user}، حافظه ${st.mem || CO.mem}: صورتحساب نهایی‌شده روی سرور کنترل، صادر و ارسال می‌شود` : 'بدون ورود، صورتحساب‌ها فقط در همین نمایش ساخته می‌شوند';
+    b.title = st.on ? `${st.user}، حافظه ${st.mem || CO.mem || '—'}: صورتحساب نهایی‌شده روی سرور کنترل، صادر و در «سامانه مودیان» نگه داشته می‌شود` : 'بدون ورود، صورتحساب‌ها فقط در همین نمایش ساخته می‌شوند';
     emit('srv');
   }
   function open() { if (!st.avail) return; return st.on ? account() : login(); }
 
   function login() {
     const d = dialog(`<div class="dh"><div class="t18 w5">ورود به سرور لاجورد</div><button class="ib" data-close aria-label="بستن">${ic('x', 14)}</button></div>
-      <div class="db"><p class="t13 c3" style="margin-bottom:16px">پس از ورود، صورتحساب نهایی‌شده به بک‌اند لاجورد می‌رود: با قواعد دستورالعمل کنترل می‌شود، سریال و شماره مالیاتی می‌گیرد، امضا و رمز می‌شود و به سامانه مودیان ارسال می‌شود.</p>
+      <div class="db"><p class="t13 c3" style="margin-bottom:16px">پس از ورود، صورتحساب نهایی‌شده به بک‌اند لاجورد می‌رود: با قواعد دستورالعمل کنترل می‌شود، سریال و شماره مالیاتی می‌گیرد و در «سامانه مودیان» آماده ارسال می‌ماند. ارسال به سامانه، پس از ثبت کلید خصوصی، مرحله بعد است.</p>
         <form id="srvf" novalidate><div class="in"><label for="srvu">نام کاربری</label><input id="srvu" autocomplete="username" dir="ltr" style="text-align:right" maxlength="32" autofocus></div>
           <div class="in" style="margin-top:12px"><label for="srvp">گذرواژه</label><input id="srvp" type="password" autocomplete="current-password" dir="ltr" style="text-align:right" maxlength="200"></div>
           <div class="t12 cbad" id="srve" role="alert" style="min-height:18px;margin-top:8px"></div><button type="submit" hidden></button></form></div>
@@ -2169,8 +2175,8 @@ const SRV = (() => {
       try {
         const r = await api('POST', '/login', { username: u, password: p });
         await me(); d.close();
-        toast({ k: 'ok', t: `وارد شدید: <span class="lat">${esc(r.username)}</span>`, b: st.mode === 'live' ? 'صورتحساب‌ها به سامانه مودیان ارسال می‌شوند.' : 'محیط آزمایشی سامانه مودیان؛ صورتحساب‌ها واقعاً صادر، امضا، رمز و ارسال می‌شوند ولی در سامانه اصلی ثبت نمی‌شوند.' });
-        if (['invoices', 'invoice', 'profile', 'dashboard', 'items', 'parties'].includes(current)) render(current);
+        toast({ k: 'ok', t: `وارد شدید: <span class="lat">${esc(r.username)}</span>`, b: !(st.conn && st.conn.hasKey) ? 'صورتحساب‌ها روی سرور صادر و در «سامانه مودیان» آماده نگه داشته می‌شوند؛ ارسال به سامانه مرحله بعد است.' : st.mode === 'live' ? 'صورتحساب‌ها روی سرور صادر و از «سامانه مودیان» به سامانه ارسال می‌شوند.' : 'محیط آزمایشی: صورتحساب‌ها صادر، امضا و رمز و به شبیه‌ساز مستقل سامانه فرستاده می‌شوند، نه به سامانه اصلی.' });
+        if (['invoices', 'invoice', 'profile', 'dashboard', 'items', 'parties', 'new-invoice'].includes(current)) render(current);
       } catch (x) { e.textContent = x.message; $('#srvp', d.box).value = ''; $('#srvp', d.box).focus(); }
       finally { st.busy = false; btn.classList.remove('busy'); }
     };
@@ -2192,8 +2198,8 @@ const SRV = (() => {
 
   async function logout() {
     try { await api('POST', '/logout'); } catch (e) { /* the cookie is cleared by the server; offline is fine too */ }
-    st.on = false; stop(); paint();
-    if (['invoices', 'invoice', 'profile', 'dashboard', 'items', 'parties'].includes(current) && !dialogs.length) render(current);
+    st.on = false; stop(); clock(); purge(); paint();
+    if (['invoices', 'invoice', 'profile', 'dashboard', 'items', 'parties', 'new-invoice'].includes(current) && !dialogs.length) render(current);
     toast({ k: 'neu', t: 'از سرور لاجورد خارج شدید', b: 'صورتحساب‌های جدید فقط در همین نمایش ساخته می‌شوند.' });
   }
   /** The server's connection, system set-up, taxpayer and open certificate request; mirrored into the demo's own state
@@ -2225,7 +2231,78 @@ const SRV = (() => {
     }
     try { await loadGoods(); } catch (e) { /* the page's own goods stay */ }
     try { await loadParties(); } catch (e) { /* the page's own parties stay */ }
+    try { await loadInvoices(); } catch (e) { /* the invoices of this browser stay */ }
     emit('state'); emit('srv');
+  }
+  // Tehran's calendar and clock, whatever the computer's own time zone (the page's jMs is fixed at +03:30 too)
+  const jd = ms => { try { return new Intl.DateTimeFormat('fa-IR-u-ca-persian-nu-latn', { timeZone: 'Asia/Tehran', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(ms)); } catch (e) { return ''; } };
+  const jt = ms => { try { return new Intl.DateTimeFormat('fa-IR-u-ca-persian-nu-latn', { timeZone: 'Asia/Tehran', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date(ms)); } catch (e) { return ''; } };
+  /** The page's «today»: the demo lives on a fixed day; signed in, invoices are real, so today and now are the real ones
+      (the issue date, the «after today» check, Article 9 and the date menu). A draft whose date and time were never
+      chosen by hand follows it. */
+  // read on first use: this module runs before the page's TODAY and NOW are declared
+  let DEMO_DAY = null; const defaults = new Set();
+  const demoDay = () => { if (!DEMO_DAY) { DEMO_DAY = [TODAY, NOW]; defaults.add(DEMO_DAY.join(' ')); } return DEMO_DAY; };
+  function clock() {
+    const demo = demoDay(), [d, t] = st.on ? [jd(Date.now()), jt(Date.now())] : demo;
+    if (/^\d{4}\/\d\d\/\d\d$/.test(d) && /^\d\d:\d\d$/.test(t)) { TODAY = d; NOW = t; defaults.add(`${d} ${t}`); }
+  }
+  const isDefault = (d, t) => { demoDay(); return defaults.has(`${d} ${t}`); };
+  /** «همه صورتحساب‌ها» is the full list (Mr. Azimi: «تو همه صورتحساب‌ها همه‌ش بیاد»): every invoice on the server joins it,
+      also one issued from another browser or device; the number shown is the server's serial, as in «سامانه مودیان». */
+  async function loadInvoices() {
+    const L = await list();
+    let next = Math.max(0, ...S.inv.map(v => Number(v.no) || 0)) + 1;
+    const fresh = [];
+    // in issue order, so a later invoice of the same day gets the later page number and lists above the earlier one
+    for (const r of (Array.isArray(L) ? L : []).filter(x => x && x.id != null).sort((a, b) => a.id - b.id)) {
+      const known = S.inv.find(x => x.srv && x.srv.id === r.id), at = Number(r.indatim || r.issuedAt);
+      // one already on the page: the server's serial, tax ID, issue date and state are the truth (sent, discarded or
+      // registered from another device too); quietly, no toast per invoice
+      if (known) { apply(known, r, true); if (Number.isFinite(at)) { const dd = jd(at), tt = jt(at); if (dd) known.date = dd; if (tt) known.time = tt; } if (r.irtaxid) known.irtaxid = r.irtaxid; continue; }
+      const name = plain(r.buyer), p = name ? S.parties.find(x => x.n === name) : null;
+      const v = { no: next++, ino: r.serial, buyer: name || 'بدون خریدار', date: jd(at), time: jt(at), kind: p ? (p.tob ? TOB[p.tob] : 'خارجی') : name ? '' : 'بدون خریدار',
+        type: patLabel(r.inty || 1, r.inp || 1), inty: r.inty || 1, inp: r.inp || 1, setm: r.setm != null ? Number(r.setm) : null, pid: p ? p.id : null,
+        total: Number(r.total) || 0, tax: Number(r.tax) || 0, tag: r.subject && r.subject !== 1 ? SUBJ[r.subject] : undefined, ...(r.irtaxid ? { irtaxid: r.irtaxid } : {}),
+        taxid: r.taxid, mem: String(r.taxid || '').slice(0, 6), srv: { id: r.id, state: r.state, reaction: r.reaction || null, errors: r.errors || [], warnings: r.warnings || [], ref: r.packet && r.packet.reference_number } };
+      Object.assign(v, stateOf(r));
+      S.inv.push(v); fresh.push(v);
+    }
+    voids();
+    if (fresh.length) save();
+    // their rows, in the background: the item count of the list, the invoice page and the references of a corrective invoice
+    const todo = S.inv.filter(v => v.srv && !v.lines && !(v.refRows && v.refRows.length)).slice(0, 300);
+    if (todo.length) (async () => { const q = todo.slice(); await Promise.all([0, 1, 2].map(async () => { for (let v; (v = q.shift());) await fill(v, true); })); save(); emit('state'); })();
+  }
+  /** A registered cancelling invoice voids its reference (the key way reads no reaction, so the page marks it). */
+  const cancelledBy = v => v.taxid && S.inv.some(c => c.srv && c.tag === 'ابطالی' && c.send === 'ok' && (c.irtaxid === v.taxid || (c.ref != null && invByNo(c.ref) === v)));
+  function voids() { for (const v of S.inv) if (v.srv && v.send === 'ok' && cancelledBy(v)) { v.send = 'void'; v.react = null; } }
+  // invoices whose rows are being read (kept out of the saved state, so a reload never leaves one marked)
+  const filling = new Set();
+  /** The rows of a server invoice issued in another browser (read once; quiet: no repaint per invoice). */
+  async function fill(v, quiet = false) {
+    if (!st.on || !v || !v.srv || v.lines || (v.refRows && v.refRows.length) || filling.has(v.srv.id)) return;
+    filling.add(v.srv.id);
+    try {
+      const x = await invoice(v.srv.id), h = (x.invoice && x.invoice.header) || {}, B = (x.invoice && x.invoice.body) || [], N = k => Number(k) || 0;
+      const txt = o => Object.fromEntries(Object.entries(o || {}).map(([k, val]) => [k, typeof val === 'string' ? plain(val) : val]));
+      v.lines = B.map(b => ({ sstid: b.sstid, sstt: plain(b.sstt), mu: b.mu, fee: N(b.fee), am: N(b.am), dis: N(b.dis), prdis: N(b.prdis), adis: N(b.adis), vra: N(b.vra), vam: N(b.vam), tsstam: N(b.tsstam) }));
+      // every item of every row (the page's row fields have the wire's names: fee, exr, cfee, cut, consfee, spro, bros,
+      // odr, olr, nw, ssrv, sscv, vba…), so a corrective or return keeps the reference's values (5-2 note 1, 5-4 notes 3, 5)
+      v.refRows = B.map(b => txt(b));
+      // and the header's pattern items (contract, customs, bill…), turned into the page's own form when used; the bill's
+      // shipped goods (sg) are rows of text too
+      v.srvHeader = { ...txt(h), ...(Array.isArray(h.sg) ? { sg: h.sg.map(g => txt(g)) } : {}) };
+      if (h.setm != null) v.setm = Number(h.setm);
+      if (!v.pid && h.tob) v.kind = TOB[h.tob] || v.kind;
+      if (!quiet) { save(); emit('state'); }
+    } catch (e) { /* shown without its rows; read again when opened */ }
+    finally { filling.delete(v.srv.id); }
+  }
+  /** Signed out, the server's invoices leave this page and this browser (the next person here sees the demo only). */
+  function purge() {
+    for (let i = S.inv.length - 1; i >= 0; i--) if (S.inv[i].srv) S.inv.splice(i, 1);
+    store.set(KEY, '[]'); emit('state');
   }
   /** Text kept on the server is shown as plain text: no markup characters. */
   const plain = v => String(v == null ? '' : v).replace(/[<>"`]/g, '');
@@ -2250,7 +2327,12 @@ const SRV = (() => {
   const list = state => api('GET', `/invoices?limit=500${state ? `&state=${encodeURIComponent(state)}` : ''}`);
   const counts = () => api('GET', '/invoices/counts');
   const imported = () => api('GET', '/imported?limit=1000');
-  async function sendNow(ids) { const r = await api('POST', '/invoices/send', ids === 'all' ? { all: true } : { ids }); setTimeout(poll, 2500); return r; }
+  async function sendNow(ids) {
+    const r = await api('POST', '/invoices/send', ids === 'all' ? { all: true } : { ids });
+    // the sent ones leave «آماده ارسال» on every page at once; their result comes by status
+    for (const v of tracked()) if (v.srv.state === 'held' && (ids === 'all' || ids.includes(v.srv.id))) { v.srv.state = 'queued'; v.send = 'queue'; }
+    save(); emit('state'); setTimeout(poll, 2500); return r;
+  }
   const discard = id => api('POST', `/invoices/${id}/discard`);
   const importRows = (rows, source) => api('POST', '/invoices/import', { rows, source });
   const pay = (id, body, key) => api('POST', `/invoices/${id}/payments`, body, key ? { 'idempotency-key': key } : {});
@@ -2289,23 +2371,29 @@ const SRV = (() => {
   async function me() {
     const m = await api('GET', '/me');
     Object.assign(st, { on: true, user: m.username, mode: m.mode, mem: m.memoryId, stuff: m.stuff });
-    paint(); start(); poll();
+    clock(); paint();
+    // the connection first (the key way decides what is final), then the invoices, then the polling
     try { await loadConn(); } catch (e) { /* shown as not configured */ }
+    start(); poll();
   }
 
   /* status of the invoices issued through the server */
-  function apply(v, x) {
+  // the key way cannot read the buyer's reaction (the portal shows it): no reaction rather than a guessed one
+  const stateOf = x => ({ send: x.reaction === 'CANCELED' ? 'void' : STATE[x.state] || 'queue',
+    react: x.state !== 'success' || x.reaction === 'CANCELED' ? null : x.reaction ? (REACT[x.reaction] || REACT.AWAITING_REACTION)() : st.conn && st.conn.method === 'key' ? null : REACT.AWAITING_REACTION() });
+  /** quiet: refreshing a list, no toast and no counter per invoice */
+  function apply(v, x, quiet = false) {
     const was = { send: v.send, react: v.react && v.react.k };
     v.srv = { ...v.srv, state: x.state, reaction: x.reaction || null, errors: x.errors || [], warnings: x.warnings || [], ref: x.packet && x.packet.reference_number, error: x.packet && x.packet.last_error };
-    v.taxid = x.taxid;
-    if (x.reaction === 'CANCELED') v.send = 'void';
-    else v.send = STATE[x.state] || 'queue';
-    // the key way cannot read the buyer's reaction (the portal shows it): no reaction rather than a guessed one
-    v.react = x.state !== 'success' ? null : x.reaction ? (REACT[x.reaction] || REACT.AWAITING_REACTION)() : st.conn && st.conn.method === 'key' ? null : REACT.AWAITING_REACTION();
+    v.taxid = x.taxid; if (x.serial != null) v.ino = x.serial;
+    Object.assign(v, stateOf(x));
+    // registered, but voided by a registered cancelling invoice of its own
+    if (v.send === 'ok' && cancelledBy(v)) { v.send = 'void'; v.react = null; }
+    if (quiet) return;
     if (was.send !== v.send) {
       if (v.send === 'ok') {
         S.sent.ok++;
-        if (v.tag === 'ابطالی') { const rf = invByNo(v.ref); if (rf && !rf.srv) rf.send = 'void'; }
+        if (v.tag === 'ابطالی') { const rf = (v.irtaxid && S.inv.find(x => x.taxid === v.irtaxid)) || invByNo(v.ref); if (rf) { rf.send = 'void'; rf.react = null; } }
         toast({ k: 'ok', t: `صورتحساب ${fa(invNo(v))} در سامانه مودیان ثبت شد`, b: `${!v.react ? 'واکنش خریدار در کارپوشه دیده می‌شود' : v.react.k === 'wait' ? 'منتظر واکنش خریدار' : 'واکنش خریدار لازم نیست'}؛ شماره مالیاتی <span class="lat">${esc(v.taxid)}</span>`, act: { label: 'دیدن', fn: () => openInv(v.no) } });
       } else if (v.send === 'fail') {
         S.sent.bad++;
@@ -2316,7 +2404,8 @@ const SRV = (() => {
   }
   async function poll() {
     if (!st.on) return;
-    const L = tracked().filter(v => !final(v)).slice(0, 25);
+    // the ones waiting for the system, newest first; a held invoice changes only when it is sent (sendNow marks it)
+    const L = tracked().filter(v => !final(v) && v.srv.state !== 'held' && v.srv.state !== 'discarded').sort((a, b) => b.srv.id - a.srv.id).slice(0, 25);
     let changed = false;
     for (const v of L) {
       try { const x = await api('GET', `/invoices/${v.srv.id}`); const k = JSON.stringify([v.send, v.react, v.srv.state]); apply(v, x); if (k !== JSON.stringify([v.send, v.react, v.srv.state])) changed = true; }
@@ -2329,7 +2418,8 @@ const SRV = (() => {
   async function sync() {
     if (!st.on) return;
     try { await api('POST', '/sync'); } catch (e) { toast({ k: 'bad', t: 'همگام‌سازی سرور انجام نشد', b: esc(e.message) }); return; }
-    await poll(); S.syncAt = 'همین حالا'; emit('state');
+    await poll(); try { await loadInvoices(); } catch (e) { /* the list stays as it is */ }
+    S.syncAt = 'همین حالا'; emit('state');
   }
 
   /* the invoice built by the page (invoiceJson) → the server's draft; the server computes and checks everything again */
@@ -2337,29 +2427,29 @@ const SRV = (() => {
   function draftOf(J, D, B) {
     const h = J.header, out = { inty: D.inty, inp: D.inp, ins: D.ins };
     if (h.irtaxid) out.irtaxid = h.irtaxid;
-    // the demo lives on a fixed day (TODAY); the server lives now: a date moved from TODAY keeps its distance
-    const off = jMs(D.date, D.time) - jMs(TODAY, NOW);
-    if (Math.abs(off) >= 60000) out.indatim = Date.now() + off;
+    // signed in, the page's today is the real one (clock): a date and time never picked by hand means «now» (the server
+    // takes its own clock); one picked by hand is sent as it is, so it never drifts with the time the page stays open
+    if (!isDefault(D.date, D.time)) { const ms = jMs(D.date, D.time); if (Number.isFinite(ms)) out.indatim = ms; }
     for (const k of ['setm', 'cap', 'insp']) if (h[k] !== undefined) out[k] = h[k];
     if (h.tob !== undefined || h.bid || h.tinb) out.buyer = { tob: h.tob, bid: h.bid, tinb: h.tinb, bpc: h.bpc, bbc: h.bbc, bpn: h.bpn, name: B ? B.n : undefined };
+    // a corrective, cancelling or return invoice: the buyer is the reference's (no buyer items); its name for the lists
+    else if (B && D.ins !== 1) out.buyer = { name: B.n };
     out.header = {}; for (const k of PH) if (h[k] !== undefined) out.header[k] = h[k];
     out.lines = (J.body || []).map(r => ({ ...r }));
     out.payments = J.payments || [];
     if (!(st.conn && st.conn.hasKey)) out.send = 'hold';
     return out;
   }
+  /** A key for one draft (made with the draft, kept until a new one): finalizing it again, after a lost answer or in a
+      new dialog, returns the invoice already issued; another draft, here or on another device, is another invoice. */
+  const newKey = () => { try { return crypto.randomUUID(); } catch (e) { return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`; } };
   const hash = s => { let x = 2166136261; for (let i = 0; i < s.length; i++) { x ^= s.charCodeAt(i); x = Math.imul(x, 16777619) >>> 0; } return x.toString(36); };
-  /** Issue on the server; the same invoice sent twice (a retried click) returns the one already issued. */
-  function issue(J, D, B, no) {
+  /** Issue on the server: the draft's key and its content (an edited draft is a new invoice). */
+  function issue(J, D, B, key) {
     const draft = draftOf(J, D, B);
-    return api('POST', '/invoices', draft, { 'idempotency-key': `demo:${no}:${hash(JSON.stringify(draft))}` });
+    return api('POST', '/invoices', draft, { 'idempotency-key': `page:${key}:${hash(JSON.stringify(draft))}` });
   }
-  function track(v) { save(); if (st.on) setTimeout(poll, 2500); }
-  /** Invoices issued through the server in this browser come back after a reload (status refreshed after sign-in). */
-  function restore() {
-    let L = []; try { L = JSON.parse(store.get(KEY) || '[]'); } catch (e) { L = []; }
-    for (const v of Array.isArray(L) ? L : []) if (v && v.srv && v.no != null && !invByNo(v.no)) S.inv.push(v);
-  }
+  function track(v) { if (st.on) setTimeout(poll, 2500); }
   /** The server's part of an invoice page: state, tracking number and the instruction's errors and warnings. */
   const LABEL = { held: 'آماده ارسال، در «سامانه مودیان»', queued: 'در صف ارسال', sending: 'در حال ارسال', in_progress: 'در حال پردازش سامانه', success: 'ثبت‌شده در سامانه', failed: 'رد سامانه', blocked: 'ارسال متوقف شد', discarded: 'باطل پیش از ارسال' };
   function box(v) {
@@ -2373,18 +2463,20 @@ const SRV = (() => {
   /** The connection test of the profile page, against the server's real connection. */
   const test = () => api('POST', '/connection/test');
   async function init() {
-    restore();
     const b = $('#srvb'); if (b) b.onclick = open;
+    try { localStorage.removeItem(KEY); } catch (e) { /* storage off */ }
     try { const r = await fetch('/api/health', { cache: 'no-store' }); const j = r.ok ? await r.json() : null; st.avail = !!(j && j.service === 'lajvard-backend'); } catch (e) { st.avail = false; }
     if (!st.avail) return;
     paint();
     try { await me(); } catch (e) { /* not signed in */ }
     // pages painted before the session was known show the server's values once it is (settings, «سامانه مودیان» and «دریافت‌ها» follow 'srv' themselves)
-    if (st.on && ['profile', 'dashboard', 'invoices', 'items', 'parties'].includes(current) && !dialogs.length) render(current);
+    if (st.on && ['profile', 'dashboard', 'invoices', 'items', 'parties', 'new-invoice'].includes(current) && !dialogs.length) render(current);
   }
   return { init, open, issue, track, sync, poll, box, retry, test, api, loadConn, setVat, logout, available: () => st.avail, on: () => st.on, mode: () => st.mode, user: () => st.user, conn: () => st.conn, sys: () => st.sys, csr: () => st.csr, esc,
     saveGood, loadGoods, list, counts, imported, sendNow, discard, importRows, pay, invoice, setSending, sending: () => st.sending, LABEL,
-    saveSeller, saveParty, hasKey: () => !!(st.conn && st.conn.hasKey) };
+    saveSeller, saveParty, hasKey: () => !!(st.conn && st.conn.hasKey), fill, clock, isDefault, jd, jt, newKey,
+    // sent right after issue only with the private key and «بلافاصله ارسال شود»; otherwise kept in «سامانه مودیان»
+    autoSend: () => !!(st.on && st.conn && st.conn.hasKey && st.sending && st.sending.auto) };
 })();
 
 /* ---------- «تنظیمات سامانه مودیان» (v13, Mr. Azimi's call of 28 Aban): the memory ID and the VAT liability, nothing
@@ -2551,7 +2643,7 @@ const ConnEd = (() => {
   /* ---------- 3. the Lajvard server ---------- */
   function srvHtml() {
     const on = SRV.on(), sy = SRV.sys() || {};
-    return `<div class="c-h"><div style="display:flex;gap:12px;align-items:center"><span class="tile-i">${ic('send')}</span><div><div class="c-t">سرور لاجورد</div><div class="t13 c3">بک‌اندی که صورتحساب را کنترل، صادر، نگه‌داری و به سامانه مودیان ارسال می‌کند</div></div></div>
+    return `<div class="c-h"><div style="display:flex;gap:12px;align-items:center"><span class="tile-i">${ic('send')}</span><div><div class="c-t">سرور لاجورد</div><div class="t13 c3">بک‌اندی که صورتحساب را کنترل، صادر و نگه‌داری می‌کند و پس از ثبت کلید به سامانه مودیان می‌فرستد</div></div></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">${on ? `<button class="btn sm" id="ssync">${ic('refresh', 14)}همگام‌سازی</button><button class="btn sm" id="sout">خروج</button>` : SRV.available() ? '<button class="btn sm pri" data-login="1">ورود به سرور لاجورد</button>' : ''}</div></div>
       <div class="pr-b"><div>${kv('وضعیت', on ? `${dot('ok')}وارد شده‌اید` : SRV.available() ? `${dot('neu')}وارد نشده‌اید؛ صورتحساب‌ها فقط در همین نمایش ساخته می‌شوند` : `${dot('neu')}این نمایش به سرور وصل نیست`, 'pst')}${on ? kv('کاربر', `<span class="lat">${E(SRV.user())}</span>`) : ''}</div>
         <div>${on ? kv('محیط', SRV.mode() === 'live' ? 'سامانه مودیان (عملیاتی)' : 'محیط آزمایشی: شبیه‌ساز مستقل سامانه مودیان') + kv('نسخه سرور', `<span class="lat">${E(sy.version || '')}</span>`) : ''}</div></div>`;
@@ -2560,15 +2652,16 @@ const ConnEd = (() => {
   /* ---------- 4. sending and sync ---------- */
   function sendHtml() {
     const on = SRV.on(), y = (on && SRV.sys()) || {}, dd = y.deadlineDays ?? DEADLINE_DAYS, rw = y.refWindowDays || REF_WINDOW_DAYS;
-    const noKey = on && !SRV.hasKey(), auto = !noKey && (on ? !!(SRV.sending() && SRV.sending().auto) : !!S.sendAuto); // without a key the effective behaviour is collecting
+    // without a key on the server (or in this demo, signed out) the effective behaviour is collecting
+    const noKey = !on || !SRV.hasKey(), auto = !noKey && !!(SRV.sending() && SRV.sending().auto);
     return `<div class="c-h"><div style="display:flex;gap:12px;align-items:center"><span class="tile-i">${ic('clock')}</span><div><div class="c-t">ارسال و همگام‌سازی</div><div class="t13 c3">ارسال پس از صدور را خودتان انتخاب کنید؛ بقیه مقادیر را اپراتور لاجورد در پیکربندی سرور تنظیم می‌کند</div></div></div></div>
       <div class="set-send">
         <div class="t13 w5">پس از صدور صورتحساب</div>
-        <div class="seg" id="sauto"><button type="button" data-a="0" class="${auto ? '' : 'on'}">در «سامانه مودیان» جمع شود، بعد ارسال کنم</button><button type="button" data-a="1" class="${auto ? 'on' : ''}"${noKey ? ' disabled title="پس از ثبت کلید در «اتصال برای ارسال»"' : ''}>بلافاصله ارسال شود</button></div>
-        ${noKey ? '<div class="t12 c3">تا کلید خصوصی ثبت نشده، صورتحساب‌ها همیشه در «سامانه مودیان» آماده نگه داشته می‌شوند.</div>' : ''}
+        <div class="seg" id="sauto"><button type="button" data-a="0" class="${auto ? '' : 'on'}">در «سامانه مودیان» جمع شود، بعد ارسال کنم</button><button type="button" data-a="1" class="${auto ? 'on' : ''}"${noKey ? ` disabled title="${on ? 'پس از ثبت کلید در «اتصال برای ارسال»' : 'روی سرور لاجورد، پس از ثبت کلید'}"` : ''}>بلافاصله ارسال شود</button></div>
+        ${noKey ? `<div class="t12 c3">${on ? 'تا کلید خصوصی ثبت نشده، صورتحساب‌ها همیشه در «سامانه مودیان» آماده نگه داشته می‌شوند.' : 'در این نمایش صورتحساب‌ها همیشه در «سامانه مودیان» آماده نگه داشته می‌شوند؛ ارسال انجام نمی‌شود.'}</div>` : ''}
         <div class="t12 c3">${auto ? 'هر صورتحساب پس از نهایی شدن همان لحظه به صف ارسال می‌رود (وقتی اتصال برای ارسال برقرار باشد).' : 'صورتحساب‌های صادرشده در منوی «سامانه مودیان» جمع می‌شوند؛ از آنجا تکی یا گروهی ارسال می‌کنید. مهلت ارسال (ماده ۹) را همان صفحه نشان می‌دهد.'}</div>
       </div>
-      <div class="pr-b"><div>${kv('مقصد ارسال', on ? E(y.target || '') : 'در این نمایش، شبیه‌سازی در مرورگر')}${kv('همگام‌سازی خودکار', on ? (y.syncSeconds ? `هر ${fa(y.syncSeconds)} ثانیه: ارسال صف، استعلام نتیجه${y.method === 'key' ? '' : '، واکنش خریدار'}` : 'خاموش؛ با دکمه همگام‌سازی') : 'با دکمه همگام‌سازی')}${kv('نخستین استعلام', on ? `${fa(Math.round((y.pollAfterMs || 0) / 1000))} ثانیه پس از ارسال` : '—')}${kv('تلاش دوباره', on ? `تا ${fa(y.maxAttempts)} بار، با فاصله فزاینده؛ بعد «متوقف» برای بررسی` : '—')}</div>
+      <div class="pr-b"><div>${kv('مقصد ارسال', on ? E(y.target || '') : 'در این نمایش، شبیه‌سازی در مرورگر')}${kv('همگام‌سازی خودکار', on ? (y.syncSeconds ? `هر ${fa(y.syncSeconds)} ثانیه: ارسال صف، استعلام نتیجه${y.method === 'key' ? '' : '، واکنش خریدار'}${noKey ? ' (ارسال: مرحله بعد، پس از ثبت کلید)' : ''}` : 'خاموش؛ با دکمه همگام‌سازی') : 'با دکمه همگام‌سازی')}${kv('نخستین استعلام', on ? `${fa(Math.round((y.pollAfterMs || 0) / 1000))} ثانیه پس از ارسال` : '—')}${kv('تلاش دوباره', on ? `تا ${fa(y.maxAttempts)} بار، با فاصله فزاینده؛ بعد «متوقف» برای بررسی` : '—')}</div>
         <div>${kv('مهلت ارسال (ماده ۹)', `${fa(dd)} روز از صدور؛ پس از آن «قاعده ارسال» و «تاریخ ثبت» افزوده می‌شود${on ? `، با ساعت سامانه و ${fa(y.art9MarginMinutes)} دقیقه زودتر` : ''}`)}${kv('بازه صورتحساب ارجاعی', `اصلاحی ${fa(rw[2])}، ابطالی ${fa(rw[3])}، برگشت از فروش ${fa(rw[4])} روز`)}${kv('مبنای کنترل‌ها', 'دستورالعمل صدور صورتحساب الکترونیکی <span class="lat">V7.9</span> و وب‌سرویس رسمی سامانه مودیان')}</div></div>`;
   }
   async function setAuto(a) {
@@ -2664,8 +2757,9 @@ const ConnEd = (() => {
   const typeOf = r => `${r.inty ? patLabel(r.inty, r.inp || 1) : ''}${r.subject && r.subject !== 1 ? `، ${SUBJ[r.subject]}` : ''}`;
   const srvInv = id => S.inv.find(v => v.srv && v.srv.id === id);
   const today = () => jdate(Date.now());
-  // signed in without a private key: invoices are issued and kept ready; sending is the next stage
-  const noKey = () => SRV.on() && !SRV.hasKey();
+  // without a private key on the server (or signed out, in this demo) invoices are issued and kept ready; sending is the
+  // next stage, so nothing here sends
+  const noKey = () => !SRV.on() || !SRV.hasKey();
 
   /* ---------- data: the server's lists, or this page's own invoices when signed out ---------- */
   const M = { data: null, err: null, busy: false, tab: 'held', sel: new Set() };
@@ -2679,7 +2773,7 @@ const ConnEd = (() => {
     } catch (e) { M.err = e.message; }
     M.busy = false;
   }
-  const DEMO_STATE = { held: 'held', queue: 'queued', prog: 'in_progress', ok: 'success', fail: 'failed', void: 'success' };
+  const DEMO_STATE = { held: 'held', queue: 'queued', prog: 'in_progress', ok: 'success', fail: 'failed', void: 'success', disc: 'discarded' };
   function demo() {
     const list = S.inv.filter(v => v.send !== 'draft' && v.src !== 'import').map(v => ({
       id: v.no, demo: true, serial: invNo(v), taxid: v.taxid || (v.send === 'queue' || v.send === 'held' ? '' : taxParts(v).join('')), subject: v.tag === 'اصلاحی' ? 2 : v.tag === 'ابطالی' ? 3 : v.tag === 'برگشت از فروش' ? 4 : 1,
@@ -2701,17 +2795,18 @@ const ConnEd = (() => {
 
   /* Article 9: a held invoice must reach the system within the deadline of its issue time */
   function deadline(r) {
-    if (r.demo) return '<span class="c4">—</span>';
-    const at = Number(r.indatim || r.issuedAt), dd = (SRV.sys() && SRV.sys().deadlineDays) || DEADLINE_DAYS;
-    if (!Number.isFinite(at)) return '';
-    const left = Math.ceil((at + dd * DAY - Date.now()) / DAY);
+    // the demo lives on its own day: its invoices are measured from it
+    const at = r.demo ? jMs(r.date, (r.v && r.v.time) || '00:00') : Number(r.indatim || r.issuedAt), now = r.demo ? jMs(TODAY, NOW) : Date.now();
+    const dd = (!r.demo && SRV.sys() && SRV.sys().deadlineDays) || DEADLINE_DAYS;
+    if (!Number.isFinite(at)) return '<span class="c4">—</span>';
+    const left = Math.ceil((at + dd * DAY - now) / DAY);
     if (left <= 0) return chip('bad', 'مهلت گذشته؛ با قاعده ماده ۹ ارسال می‌شود');
     return chip(left <= 2 ? 'warn' : 'neu', left === 1 ? 'تا پایان امروز و فردا' : `${fa(left)} روز مانده`);
   }
   const stateChip = r => r.state === 'held' ? chip('warn', 'آماده ارسال') : r.state === 'queued' || r.state === 'sending' ? chip('neu', 'در صف ارسال') : r.state === 'in_progress' ? chip('prog', 'در حال پردازش سامانه')
     : r.state === 'success' ? chip('ok', 'ثبت‌شده') : r.state === 'failed' ? chip('bad', 'رد سامانه') : r.state === 'blocked' ? chip('bad', 'ارسال متوقف شد') : chip('neu', E(r.state));
   const reactOf = r => { if (r.demo) return reactChip({ react: r.v.react }); if (!r.reaction) return SRV.conn() && SRV.conn().method === 'key' ? '<span class="t12 c3">در کارپوشه</span>' : '<span class="c4">—</span>'; return reactChip({ react: ({ AWAITING_REACTION: { k: 'wait', d: 0 }, APPROVED: { k: 'ok' }, SYSTEMIC_APPROVED: { k: 'sys' }, REJECTED: { k: 'rej' } })[r.reaction] || { k: 'na' } }); };
-  const errOf = r => { const e = (r.errors || [])[0]; if (r.state === 'blocked') return `<span class="t12 c2 ell" title="${E((r.packet && r.packet.last_error) || '')}">${E((r.packet && r.packet.last_error) || 'پس از چند تلاش ارسال نشد')}</span>`; return e ? `<span class="t12 c2 ell" title="${E(e.message)}"><span class="lat">${E(e.code)}</span> ${E(e.message)}</span>` : ''; };
+  const errOf = r => { const e = (r.errors || [])[0]; if (r.state === 'blocked') return `<span class="t12 c2 ell" title="${E((r.packet && r.packet.last_error) || '')}">${E((r.packet && r.packet.last_error) || 'پس از چند تلاش ارسال نشد')}</span>`; return e ? `<span class="t12 c2 ell" title="${E(e.message)}"><span class="lat">${E(e.code)}</span> ${E(e.message)}</span>` : '<span class="c4">—</span>'; }; // always one cell: the columns stay in place
   const serialOf = r => `<span class="n w5">${fa(r.serial ?? '')}</span>`;
 
   const GRID = {
@@ -2739,7 +2834,7 @@ const ConnEd = (() => {
     const ref = r.packet && r.packet.reference_number ? `<span class="lat t12 ell" title="${E(r.packet.reference_number)}">${E(r.packet.reference_number)}</span>` : '<span class="c4">—</span>';
     const cells = {
       held: () => `<button class="cb${M.sel.has(r.id) ? ' on' : ''}" data-cb aria-label="انتخاب ${E(r.serial)}">${ic('check', 12, 2)}</button>${serialOf(r)}${d}${buyer}<span class="t13 c2 ell">${typeOf(r)}</span>${tot}<span>${deadline(r)}</span>
-        <div class="acts"><button class="btn sm" data-a="send"${noKey() ? ' disabled title="ارسال پس از اتصال (مرحله بعد)"' : ''}>${ic('send', 14)}ارسال</button><button class="ib sm" data-a="discard" aria-label="باطل کردن پیش از ارسال" title="باطل کردن پیش از ارسال">${ic('x', 14)}</button></div>`,
+        <div class="acts"><button class="btn sm" data-a="send"${noKey() ? ` disabled title="${SRV.on() ? 'ارسال پس از اتصال (مرحله بعد)' : 'در این نمایش ارسال انجام نمی‌شود'}"` : ''}>${ic('send', 14)}ارسال</button><button class="ib sm" data-a="discard" aria-label="باطل کردن پیش از ارسال" title="باطل کردن پیش از ارسال">${ic('x', 14)}</button></div>`,
       sending: () => `${serialOf(r)}${d}${buyer}<span class="t13 c2 ell">${typeOf(r)}</span>${tot}<span>${stateChip(r)}</span>${ref}`,
       ok: () => `${serialOf(r)}${d}${buyer}${tot}<span class="lat t12 ell">${E(r.taxid || '')}</span>${ref}<span>${reactOf(r)}</span>`,
       bad: () => `${serialOf(r)}${d}${buyer}${tot}<span>${stateChip(r)}</span>${errOf(r)}<div class="acts">${r.state === 'blocked' ? `<button class="btn sm" data-a="retry">${ic('send', 14)}ارسال دوباره</button>` : `<button class="btn sm" data-a="fix">صدور اصلاح‌شده</button>`}</div>`,
@@ -2749,7 +2844,7 @@ const ConnEd = (() => {
   }
   function empty(t) {
     const msg = {
-      held: M.data && M.data.demo ? ['صورتحسابی آماده ارسال نیست', 'در این نمایش، صورتحساب پس از نهایی شدن شبیه‌سازی می‌شود. پس از ورود به سرور لاجورد، صورتحساب‌های صادرشده اینجا جمع می‌شوند.'] : ['صورتحسابی آماده ارسال نیست', 'صورتحساب‌هایی که صادر می‌کنید اینجا جمع می‌شوند تا ارسالشان کنید.'],
+      held: M.data && M.data.demo ? ['صورتحسابی آماده ارسال نیست', 'صورتحساب‌هایی که نهایی می‌کنید اینجا آماده ارسال می‌مانند؛ در این نمایش ارسال انجام نمی‌شود.'] : ['صورتحسابی آماده ارسال نیست', 'صورتحساب‌هایی که صادر می‌کنید اینجا جمع می‌شوند تا ارسالشان کنید.'],
       sending: ['صورتحسابی در حال ارسال نیست', 'صورتحساب ارسال‌شده تا رسیدن نتیجه سامانه اینجا می‌ماند.'],
       ok: ['هنوز صورتحسابی در سامانه ثبت نشده', 'نتیجه ارسال‌ها خودکار استعلام می‌شود.'],
       bad: ['صورتحساب ردشده یا متوقفی نیست', 'اگر سامانه صورتحسابی را رد کند، علت آن با کد خطای سامانه اینجا می‌آید.'],
@@ -2777,7 +2872,7 @@ const ConnEd = (() => {
         <div class="c-h"><div><div class="c-t">سامانه مودیان</div><div class="t13 c3">صورتحساب‌های صادرشده اینجا جمع می‌شوند تا به سامانه مودیان ارسال و پیگیری شوند. فهرست کامل، با پیش‌نویس‌ها، در «همه صورتحساب‌ها» است.</div></div>
           <div class="acts0">${connChip()}<button class="btn" id="msync">${ic('refresh')}همگام‌سازی</button><button class="btn" id="mimp">${ic('up')}ورود از اکسل سامانه مودیان</button><button class="btn" id="mall">${ic('invoice')}همه صورتحساب‌ها</button></div></div>
         <div class="fl2" id="mtabs">${tabsHtml()}</div>
-        ${M.tab === 'held' && noKey() ? `<div class="needb moa-note"><div class="w5 t13">${ic('clock', 16)}صورتحساب‌ها صادر شده و آماده‌اند</div><div class="t13 c2">ارسال به سامانه مودیان در مرحله بعد، پس از ثبت کلید خصوصی در «تنظیمات ← اتصال برای ارسال»، از همین‌جا انجام می‌شود. تا آن موقع صورتحساب‌ها اینجا می‌مانند؛ مهلت ماده ۹ هر کدام کنار آن است.</div><div><button class="btn sm" data-link="1">تنظیمات اتصال برای ارسال</button></div></div>` : ''}
+        ${M.tab === 'held' && noKey() ? `<div class="needb moa-note"><div class="w5 t13">${ic('clock', 16)}صورتحساب‌ها صادر شده و آماده‌اند</div><div class="t13 c2">${SRV.on() ? 'ارسال به سامانه مودیان در مرحله بعد، پس از ثبت کلید خصوصی در «تنظیمات ← اتصال برای ارسال»، از همین‌جا انجام می‌شود. تا آن موقع صورتحساب‌ها اینجا می‌مانند؛ مهلت ماده ۹ هر کدام کنار آن است.' : 'در این نمایش ارسال به سامانه انجام نمی‌شود؛ صورتحساب‌های نهایی‌شده همین‌جا آماده ارسال می‌مانند. ارسال، پس از ورود به سرور لاجورد و ثبت کلید خصوصی، مرحله بعد است.'}</div>${SRV.on() ? '<div><button class="btn sm" data-link="1">تنظیمات اتصال برای ارسال</button></div>' : SRV.available() ? '<div><button class="btn sm" data-login="1">ورود به سرور لاجورد</button></div>' : ''}</div>` : ''}
         ${M.tab === 'held' && held.length ? `<div class="moa-bar"><span class="t13 c2" id="mseln">${M.sel.size ? `${fa(M.sel.size)} صورتحساب انتخاب شده، جمع ${amt(held.filter(r => M.sel.has(r.id)).reduce((a, r) => a + Number(r.total || 0), 0))} ریال` : `${fa(held.length)} صورتحساب منتظر ارسال؛ چند تا را انتخاب کنید یا همه را بفرستید.`}</span><span style="flex:1"></span>
           <button class="btn pri" id="msendsel"${M.sel.size && !noKey() ? '' : ' disabled'}>${ic('send', 16)}ارسال انتخاب‌شده‌ها${M.sel.size ? ` (${fa(M.sel.size)})` : ''}</button><button class="btn" id="msendall"${noKey() ? ' disabled' : ''}>ارسال همه (${fa(held.length)})</button></div>` : ''}
         <div id="mlist" style="padding-bottom:24px">${listHtml()}</div>
@@ -2791,7 +2886,7 @@ const ConnEd = (() => {
   function refresh() { if (!rootEl || current !== 'moadian') return; const sx = window.scrollY; rootEl.innerHTML = render(); still(rootEl); hyd(rootEl); bind(rootEl); window.scrollTo(0, sx); }
   async function reload() { await load(); refresh(); if (typeof badges === 'function') badges(); }
   async function sendIds(ids, btn) {
-    if (!SRV.on()) return toast({ k: 'neu', t: 'برای ارسال واقعی وارد سرور لاجورد شوید', b: 'در این نمایش صورتحساب پس از نهایی شدن خودکار شبیه‌سازی می‌شود.' });
+    if (!SRV.on()) return toast({ k: 'neu', t: 'در این نمایش ارسال انجام نمی‌شود', b: 'صورتحساب‌های نهایی‌شده در «سامانه مودیان» آماده ارسال می‌مانند.' });
     btn && btn.classList.add('busy');
     try {
       const r = await SRV.sendNow(ids);
@@ -2811,7 +2906,7 @@ const ConnEd = (() => {
         <div class="db"><div class="kv"><b>وضعیت</b><span style="justify-self:start">${stateChip(x)}</span></div>
           <div class="kv"><b>شماره منحصربه‌فرد مالیاتی</b><span class="lat" style="justify-self:start">${E(x.taxid)}</span></div>
           ${x.packet && x.packet.reference_number ? `<div class="kv"><b>شماره پیگیری سامانه</b><span class="lat" style="justify-self:start">${E(x.packet.reference_number)}</span></div>` : ''}
-          <div class="kv"><b>نوع و موضوع</b><span style="justify-self:start">${typeOf({ inty: h.inty, inp: h.inp, subject: x.subject })}</span></div>
+          <div class="kv"><b>نوع و موضوع</b><span style="justify-self:start">${typeOf({ inty: x.inty ?? h.inty, inp: x.inp ?? h.inp, subject: x.subject })}</span></div>
           <div class="kv"><b>روش تسویه</b><span style="justify-self:start">${SETM[h.setm] || '—'}</span></div>
           <div class="frame" style="margin-top:12px"><div class="lh moa-it"><span>شناسه کالا</span><span>شرح</span><span>مقدار</span><span class="am" style="text-align:right">مبلغ کل (ریال)</span></div>
             ${B.map(b => `<div class="lr moa-it"><span class="lat t12">${E(b.sstid)}</span><span class="t13 ell">${E(b.sstt || '')}</span><span class="n">${fa(b.am)}</span><div class="am">${amt(b.tsstam)}</div></div>`).join('')}</div>
@@ -2829,6 +2924,7 @@ const ConnEd = (() => {
     $('#mall', root).onclick = () => go('invoices');
     $('#mconn', root).onclick = () => (SRV.on() ? go('settings', { sec: SRV.hasKey() ? 'link' : 'conn' }) : !SRV.available() ? go('settings', { sec: 'conn' }) : SRV.open());
     $$('[data-link]', root).forEach(b => b.onclick = () => go('settings', { sec: 'link' }));
+    $$('[data-login]', root).forEach(b => b.onclick = () => SRV.open());
     const ss = $('#msendsel', root); if (ss) ss.onclick = e => sendIds([...M.sel], e.currentTarget);
     const sa = $('#msendall', root); if (sa) sa.onclick = e => { const n = rowsOf('held').length; if (n > 1 && !confirm(`${fa(n)} صورتحساب به سامانه مودیان ارسال شود؟`)) return; sendIds('all', e.currentTarget); };
     const hc = $('#mhcb', root); if (hc) hc.onclick = () => { const L = rowsOf('held'); if (allSel()) M.sel.clear(); else L.forEach(r => M.sel.add(r.id)); refresh(); };
@@ -2846,11 +2942,11 @@ const ConnEd = (() => {
       const k = a.dataset.a;
       if (k === 'send') return sendIds([r.id], a);
       if (k === 'fix') return go('new-invoice');
-      if (k === 'retry') { if (r.demo) return toast({ k: 'neu', t: 'برای ارسال واقعی وارد سرور لاجورد شوید' }); a.classList.add('busy'); try { await SRV.api('POST', `/invoices/${r.id}/retry`); await SRV.sync(); } catch (x) { toast({ k: 'bad', t: 'ارسال دوباره ممکن نشد', b: EC(x.message) }); } finally { a.classList.remove('busy'); await reload(); } return; }
+      if (k === 'retry') { if (r.demo) return toast({ k: 'neu', t: 'در این نمایش ارسال انجام نمی‌شود' }); a.classList.add('busy'); try { await SRV.api('POST', `/invoices/${r.id}/retry`); await SRV.sync(); } catch (x) { toast({ k: 'bad', t: 'ارسال دوباره ممکن نشد', b: EC(x.message) }); } finally { a.classList.remove('busy'); await reload(); } return; }
       if (k === 'discard') {
-        if (r.demo) return;
+        if (r.demo) return toast({ k: 'neu', t: 'باطل کردن پیش از ارسال روی سرور لاجورد انجام می‌شود', b: 'در این نمایش صورتحساب‌ها فقط در همین مرورگر ساخته می‌شوند.' });
         if (!confirm(`صورتحساب سریال ${fa(r.serial)} پیش از ارسال باطل شود؟ به سامانه نمی‌رود و در فهرست با برچسب «باطل پیش از ارسال» می‌ماند.`)) return;
-        try { await SRV.discard(r.id); M.sel.delete(r.id); const v = srvInv(r.id); if (v) { v.send = 'void'; v.srv.state = 'discarded'; emit('state'); } toast({ k: 'ok', t: 'صورتحساب پیش از ارسال باطل شد' }); } catch (x) { toast({ k: 'bad', t: 'باطل نشد', b: EC(x.message) }); }
+        try { await SRV.discard(r.id); M.sel.delete(r.id); const v = srvInv(r.id); if (v) { v.send = 'disc'; v.srv.state = 'discarded'; emit('state'); } toast({ k: 'ok', t: 'صورتحساب پیش از ارسال باطل شد' }); } catch (x) { toast({ k: 'bad', t: 'باطل نشد', b: EC(x.message) }); }
         return reload();
       }
     };
@@ -3307,7 +3403,7 @@ function jMs(jd, hm = '00:00') {
 }
 const unixDay = jd => { const ms = jMs(jd); if (isNaN(ms)) return NaN; return Math.floor((ms + 12600000) / 86400000); }; // the calendar day itself, as the SDK does
 const jCmp = (a, b) => jMs(a) - jMs(b);
-const TODAY = '1405/08/18', NOW = '12:10', DEADLINE_DAYS = 7;
+let TODAY = '1405/08/18', NOW = '12:10'; const DEADLINE_DAYS = 7;
 /* Allowed window, in days after the reference's issue date and time, for issuing a corrective (2), cancelling (3) or
    return (4) invoice on it. The instruction (Table 4 row 4, Table 8 row 5) only says the windows the Organization
    announces must be kept and gives no numbers: demo placeholder, set it from the Organization's notice. */
@@ -3318,8 +3414,8 @@ const VD = [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 2, 3, 4, 0, 6, 7, 8, 9, 5], [2, 
 const VP = [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 5, 7, 6, 2, 8, 3, 0, 9, 4], [5, 8, 0, 3, 7, 9, 6, 1, 4, 2], [8, 9, 1, 6, 0, 4, 3, 5, 2, 7], [9, 4, 5, 3, 1, 2, 6, 8, 7, 0], [4, 2, 8, 6, 5, 7, 3, 9, 0, 1], [2, 7, 9, 3, 8, 0, 6, 4, 1, 5], [7, 0, 4, 6, 9, 1, 3, 2, 5, 8]];
 const VI = [0, 4, 3, 2, 1, 5, 6, 7, 8, 9];
 const verhoeff = s => { let c = 0; [...s].reverse().forEach((d, i) => { c = VD[c][VP[(i + 1) % 8][+d]]; }); return String(VI[c]); };
-function taxIdParts(mem, jd, serial) {
-  const day = unixDay(jd), ctrl = [...mem].map(ch => /\d/.test(ch) ? ch : String(ch.charCodeAt(0))).join('') + String(day).padStart(6, '0') + String(serial).padStart(12, '0');
+function taxIdParts(mem, jd, serial, hm) {
+  const day = hm && !isNaN(jMs(jd, hm)) ? Math.floor(jMs(jd, hm) / 86400000) : unixDay(jd), ctrl = [...mem].map(ch => /\d/.test(ch) ? ch : String(ch.charCodeAt(0))).join('') + String(day).padStart(6, '0') + String(serial).padStart(12, '0');
   return [mem, day.toString(16).toUpperCase().padStart(5, '0'), serial.toString(16).toUpperCase().padStart(10, '0'), verhoeff(ctrl)];
 }
 
@@ -3559,7 +3655,7 @@ const Importer = (() => {
       if (!date) add('E', 'تاریخ صدور خوانا نیست.');
       else {
         if (jCmp(date, TODAY) > 0) add('E', 'تاریخ صدور بعد از امروز است.');
-        if (chk && unixDay(date) !== chk.day) add('W', 'تاریخ صدور با تاریخی که در شماره مالیاتی آمده یکی نیست.');
+        if (chk && unixDay(date) !== chk.day && unixDay(date) - 1 !== chk.day) add('W', 'تاریخ صدور با تاریخی که در شماره مالیاتی آمده یکی نیست.');
         if (date.slice(0, 4) !== TODAY.slice(0, 4)) add('W', `خارج از سال مالی ${fa(TODAY.slice(0, 4))} است.`);
       }
       const tins = digits(get(r0, 'tins')); if (tins && tins !== CO.econ) add('E', 'شماره اقتصادی فروشنده با مودی این حساب یکی نیست؛ صورتحساب متعلق به دیگری است.');
@@ -3696,7 +3792,8 @@ const Importer = (() => {
       S.imports = (S.imports || []).concat({ at: `${TODAY} ${NOW}`, file: file.name, n: ok.length });
       if (SRV.on() && !file.sample) SRV.importRows(ok.map(x => ({ taxid: x.taxid, indatim: jMs(x.date, x.time || '00:00'), inty: x.inty, inp: x.inp, ins: x.ins, buyer: x.buyer, tinb: x.party && x.party.econ || (x.pNew && x.pNew.econ) || undefined, tbill: String(Math.round(x.total)), tvam: String(Math.round(x.tax)), status: x.st && x.st.label })), file.name)
         .then(r => { if (current === 'moadian' && !dialogs.length) render('moadian'); return r; })
-        .then(r => toast({ k: 'ok', t: `${fa(r.added)} صورتحساب روی سرور لاجورد هم ثبت شد`, b: `${r.duplicate ? `${fa(r.duplicate)} مورد از قبل بود. ` : ''}سریال صورتحساب‌های بعدی از سریال‌های واردشده جلوتر می‌رود.` }))
+        .then(r => toast({ k: 'ok', t: `${fa(r.added)} صورتحساب روی سرور لاجورد هم ثبت شد`, b: `${r.duplicate ? `${fa(r.duplicate)} مورد از قبل بود. ` : ''}سریال صورتحساب‌های بعدی از سریال‌های واردشده جلوتر می‌رود.${r.renumbered && r.renumbered.length ? ` ${fa(r.renumbered.length)} صورتحساب آماده ارسال شما، که سریالش با سریالی واردشده یکی بود، سریال و شماره مالیاتی تازه گرفت تا در سامانه تکراری نباشد.` : ''}`, dur: r.renumbered && r.renumbered.length ? 9000 : undefined }))
+        .then(() => SRV.sync())
         .catch(e => toast({ k: 'bad', t: 'ورود روی سرور انجام نشد', b: SRV.esc(e.message) }));
       done = { n: ok.length, p: A.newP.length, g: A.newG.length, skip: A.list.length - ok.length, first: first[0] };
       emit('state'); go2(3);
@@ -3727,10 +3824,10 @@ const Importer = (() => {
   let range = 'm';
   const TASKS = {
     rej: () => ({ ic: 'invoice', t: `${S.sent.bad} صورتحساب رد سامانه`, m: S.fixed1047 ? 'یک مورد اصلاح و ثبت شد؛ یک مورد دیگر مانده است' : 'روش تسویه و شناسه ملی خریدار پذیرفته نشد', c: chip('bad', 'امروز'), b: 'رسیدگی', ai: S.fixed1047 ? null : 'نسخه اصلاحی 1047 با 2 تغییر آماده است.' }),
-    due: () => ({ ic: 'clock', t: '3 صورتحساب نزدیک مهلت ارسال', m: 'کمترین زمان باقی‌مانده: 2 روز و 5 ساعت', c: chip('warn', 'این هفته'), b: 'ارسال' }),
+    due: () => ({ ic: 'clock', t: '3 صورتحساب نزدیک مهلت ارسال', m: 'در «سامانه مودیان» آماده ارسال‌اند؛ کمترین زمان باقی‌مانده: 2 روز و 5 ساعت', c: chip('warn', 'این هفته'), b: 'مشاهده' }),
     brej: () => ({ ic: 'userx', t: '1 رد خریدار', m: 'نگین شهر، صورتحساب 1043', c: chip('warn', 'این هفته'), b: 'بررسی' }),
     late: () => ({ ic: 'hour', t: '6 صورتحساب بیش از 7 روز بی‌واکنش', m: 'پیگیری یا انتظار تا تأیید سیستمی', c: chip('neu', 'پیگیری'), b: 'فهرست' }),
-    cert: () => ({ ic: 'shield', t: 'آزمون اتصال به سامانه مودیان', m: 'شناسه حافظه و کلید خصوصی؛ گذرواژه و گواهی امضا لازم نیست', c: chip('neu', 'تنظیمات'), b: 'آزمون' }),
+    cert: () => (typeof SRV !== 'undefined' && SRV.on() && SRV.hasKey() ? { ic: 'shield', t: 'آزمون اتصال به سامانه مودیان', m: 'با کلید ثبت‌شده، پیش از ارسال صورتحساب‌ها؛ گذرواژه و گواهی امضا لازم نیست', c: chip('neu', 'تنظیمات'), b: 'آزمون' } : { ic: 'send', t: 'اتصال برای ارسال به سامانه، مرحله بعد', m: 'صورتحساب‌ها صادر و در «سامانه مودیان» آماده می‌مانند؛ کلید خصوصی فقط برای ارسال لازم است', c: chip('neu', 'مرحله بعد'), b: 'مشاهده' }),
     stuff: () => ({ ic: 'refresh', t: `${syncPending()} تغییر در شناسه کالاهای شما`, m: 'شناسه اختصاصی شمشه ذوب‌آهن پیدا شد؛ ۲ شناسه جدید مرتبط', c: chip('info', 'امروز'), b: 'مرور' })
   };
   const ORDERS = { risk: ['rej', 'due', 'stuff', 'brej', 'late', 'cert'], due: ['due', 'rej', 'stuff', 'cert', 'late', 'brej'], sum: ['late', 'rej', 'due', 'stuff', 'brej', 'cert'] };
@@ -3901,13 +3998,7 @@ const Importer = (() => {
       if (k === 'late') return go('invoices', { filter: 'wait' });
       if (k === 'cert') return go('settings', { sec: 'link' });
       if (k === 'stuff') return go('items');
-      if (k === 'due') {
-        await busy(b, 1100, 'ارسال');
-        S.done.due = { t: '3 صورتحساب به صف ارسال رفت', m: 'ارسال بعدی ساعت 12:30، بدون نیاز به اقدام' };
-        flipTasks(root, () => { $('#tlist', root).innerHTML = tasksHtml(); });
-        $('#topen', root).textContent = fa(`${open()} کار باز، 2 مورد همین امروز`);
-        toast({ k: 'ok', t: '3 صورتحساب به صف ارسال رفت', b: 'هر سه با امضای حافظه A3F9K2 ارسال می‌شوند.' });
-      }
+      if (k === 'due') return go('moadian');
     });
   }
 
@@ -4064,6 +4155,7 @@ function ctxMenu(e, opts) {
     mount(root) {
       bind(root);
       const onSt = () => rerender(root); on('state', onSt);
+      { const v0 = invByNo(S.invOpen); if (v0 && v0.srv && typeof SRV !== 'undefined' && SRV.on()) SRV.fill(v0); }
       return () => { bus.state = (bus.state || []).filter(f => f !== onSt); };
     }
   });
@@ -4115,7 +4207,7 @@ function ctxMenu(e, opts) {
     if (!Q) return true;
     return Q.tokens.every(t => t.k === 'buyer' ? v.buyer === t.v : t.k === 'wait' ? (v.react && v.react.k === 'wait' && v.react.d >= t.v) :
       t.k === 'brej' ? (v.react && v.react.k === 'rej') : t.k === 'fail' ? v.send === 'fail' : t.k === 'draft' ? v.send === 'draft' :
-      t.k === 'min' ? v.total > t.v : t.k === 'no' ? v.no === t.v : (v.buyer.includes(t.v) || String(v.no).includes(en(t.v))));
+      t.k === 'min' ? v.total > t.v : t.k === 'no' ? invNo(v) === t.v : (v.buyer.includes(t.v) || String(invNo(v)).includes(en(t.v))));
   }
   let TP = null;
   const rows = () => S.inv.slice().sort(invSort).filter(match).filter(v => !TP || v.type.endsWith('، ' + TP));
@@ -4209,7 +4301,7 @@ function ctxMenu(e, opts) {
       if (nav.filter) { F = nav.filter; Q = null; }
       if (nav.peek && !rows().some(v => v.no === nav.peek)) { F = 'all'; Q = null; }
       document.body.insertAdjacentHTML('beforeend', `<div class="bulk hide" id="bulk" role="toolbar" aria-label="اقدام گروهی"><span class="t13 w5" style="padding:0 4px"><span id="bn"></span> صورتحساب انتخاب شد</span><span class="t13 c3 lbl-h" style="padding-inline-end:8px">جمع <span class="n" id="bs">0</span> ریال</span>
-        <button class="btn sm pri" id="b-inq">${ic('refresh', 14)}همگام‌سازی با سامانه</button><button class="btn sm" id="b-pay">${ic('wallet', 14)}<span class="lbl-h">ثبت دریافت</span></button><button class="btn sm" id="b-print">${ic('print', 14)}<span class="lbl-h">چاپ</span></button><button class="ib" id="b-x" aria-label="لغو انتخاب">${ic('x', 14)}</button></div>`);
+        <button class="btn sm" id="b-pay">${ic('wallet', 14)}<span class="lbl-h">ثبت دریافت</span></button><button class="btn sm" id="b-print">${ic('print', 14)}<span class="lbl-h">چاپ</span></button><button class="ib" id="b-x" aria-label="لغو انتخاب">${ic('x', 14)}</button></div>`);
       hyd($('#bulk'));
       refresh(root);
       if (nav.peek) setTimeout(() => { const r = $(`.lr[data-no="${nav.peek}"]`, root); if (r) { r.scrollIntoView({ block: 'center' }); flash(r); } }, 350);
@@ -4233,7 +4325,7 @@ function ctxMenu(e, opts) {
       root.addEventListener('contextmenu', e => {
         const r = e.target.closest('.lr[data-no]'); if (!r) return; const v = invByNo(+r.dataset.no); if (!v) return;
         const noTax = v.send === 'draft' || v.send === 'queue', canSync = (v.send === 'ok' || v.send === 'prog') && v.src !== 'import';
-        ctxMenu(e, { head: `صورتحساب ${fa(invNo(v))}`, width: 260, items: [{ label: 'باز کردن صورتحساب', icon: 'ext', fn: () => openInv(v.no) }, { label: 'همگام‌سازی با سامانه مودیان', icon: 'refresh', sub: canSync ? 'وضعیت ارسال و واکنش خریدار' : 'برای صورتحساب ارسال‌شده', fn: () => canSync ? syncMoa([v]).then(() => refresh(root, false)) : toast({ k: 'neu', t: 'این صورتحساب هنوز در سامانه ثبت نشده است' }) }, { label: 'کپی شماره مالیاتی', icon: 'copy', fn: () => noTax ? toast({ k: 'neu', t: 'شماره مالیاتی هنوز ساخته نشده است' }) : copy(taxParts(v).join(''), 'شماره مالیاتی کپی شد') }, '-', { label: 'چاپ', icon: 'print', fn: () => notInDemo('چاپ صورتحساب') }] });
+        ctxMenu(e, { head: `صورتحساب ${fa(invNo(v))}`, width: 260, items: [{ label: 'باز کردن صورتحساب', icon: 'ext', fn: () => openInv(v.no) }, { label: 'سامانه مودیان: ارسال و پیگیری', icon: 'send', sub: 'صف ارسال و نتیجه سامانه', fn: () => go('moadian') }, { label: 'کپی شماره مالیاتی', icon: 'copy', fn: () => noTax ? toast({ k: 'neu', t: 'شماره مالیاتی هنوز ساخته نشده است' }) : copy(taxParts(v).join(''), 'شماره مالیاتی کپی شد') }, '-', { label: 'چاپ', icon: 'print', fn: () => notInDemo('چاپ صورتحساب') }] });
       });
       if ($('#sync', root)) $('#sync', root).onclick = async e => { await syncMoa(S.inv, e.currentTarget); refresh(root, false); const s = $('#syncat', root); if (s) s.textContent = S.syncAt; };
       $('#hcb', root).onclick = () => { const R = rows(), all = R.every(v => sel.has(v.no)); R.forEach(v => all ? sel.delete(v.no) : sel.add(v.no)); refresh(root, false); };
@@ -4250,8 +4342,8 @@ function ctxMenu(e, opts) {
       const B = $('#bulk');
       $('#b-x', B).onclick = () => { sel.clear(); refresh(root, false); };
       $('#b-print', B).onclick = () => notInDemo('چاپ گروهی');
-      $('#b-pay', B).onclick = () => notInDemo('ثبت دریافت گروهی');
-      $('#b-inq', B).onclick = async e => { await syncMoa(S.inv.filter(v => sel.has(v.no)), e.currentTarget); refresh(root, false); };
+      $('#b-pay', B).onclick = () => go('receipts');
+      /* sync with the system lives in «سامانه مودیان» */
       const key = e => {
         if (e.target.closest('input,textarea') || dialogs.length || e.ctrlKey || e.metaKey) return;
         if (e.key === 'Enter') { const r = document.activeElement && document.activeElement.closest && document.activeElement.closest('.lr[data-no]'); if (r && root.contains(r)) openInv(+r.dataset.no); }
@@ -4399,7 +4491,7 @@ function ctxMenu(e, opts) {
   const totals = () => totalsOf(D.rows, D.inp, col());
   const insp = () => { const T = totals(); return T.tbill - T.todam - T.tvam - (D.cap || 0); };
   const dayDiff = () => Math.floor((jMs(TODAY, NOW) - jMs(D.date, D.time)) / 86400000);
-  const art9 = () => !isNaN(jMs(D.date, D.time)) && dayDiff() > DEADLINE_DAYS;
+  const art9 = () => { const ms = jMs(D.date, D.time); if (isNaN(ms)) return false; const y = typeof SRV !== 'undefined' && SRV.on() ? SRV.sys() || {} : {}; return jMs(TODAY, NOW) - ms > (y.deadlineDays || DEADLINE_DAYS) * 86400000 - (y.art9MarginMinutes || 0) * 60000; };
   function jAdd(d, n) { let [y, m, dd] = en(d).split('/').map(Number); const ml = mm => (mm <= 6 ? 31 : mm < 12 ? 30 : 29); dd += n; while (dd > ml(m)) { dd -= ml(m); m++; if (m > 12) { m = 1; y++; } } return `${y}/${String(m).padStart(2, '0')}/${String(dd).padStart(2, '0')}`; }
 
   /* ---------- pattern-specific header fields ---------- */
@@ -4495,8 +4587,8 @@ function ctxMenu(e, opts) {
       by = `<div class="pty-n"><div class="tile-i">${ic(B.tob === 1 || B.tob === 4 ? 'users' : 'building')}</div><div style="min-width:0"><div class="w5 ell">${B.n}</div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="t12 c3">${B.tob ? TOB[B.tob] : 'خارجی'}</span>${chipS}</div></div></div>
         <div class="pty-f">${f.join('')}</div><div class="t12 c3 pty-r">${ic('shield', 12)}<span>${note}</span></div>`;
     }
-    const pass = D.inp === 6 && +D.pf.ft === 1 ? `<div class="in" style="margin-top:12px"><label>شماره گذرنامه مسافر غیرمقیم</label><input id="bpn" value="${D.bpn || ''}" maxlength="9" placeholder="فقط برای تبعه غیرمقیم" style="direction:ltr;text-align:right"></div>` : '';
-    const fx = D.inp === 2 && B && B.tob === 4 && !digits(B.nid) ? `<div class="in" style="margin-top:12px"><label>شماره گذرنامه خریدار <em>*</em></label><input id="bpn" value="${D.bpn || ''}" maxlength="9" style="direction:ltr;text-align:right"></div>` : '';
+    const pass = D.ins === 1 && D.inp === 6 && +D.pf.ft === 1 ? `<div class="in" style="margin-top:12px"><label>شماره گذرنامه مسافر غیرمقیم</label><input id="bpn" value="${D.bpn || ''}" maxlength="9" placeholder="فقط برای تبعه غیرمقیم" style="direction:ltr;text-align:right"></div>` : '';
+    const fx = D.ins === 1 && D.inp === 2 && B && B.tob === 4 && !digits(B.nid) ? `<div class="in" style="margin-top:12px"><label>شماره گذرنامه خریدار <em>*</em></label><input id="bpn" value="${D.bpn || ''}" maxlength="9" style="direction:ltr;text-align:right"></div>` : '';
     return `${sel}<div class="pty" id="buyer"><div class="pty-h"><span class="t12 c3">خریدار</span>${reqTag}${!refLock && !D.done ? `<button class="btn sm" data-a="buyer" id="chb" style="margin-inline-start:auto">${B ? 'تغییر' : 'انتخاب از طرف‌حساب‌ها'}</button>` : `<span class="t12 c3" style="margin-inline-start:auto;display:flex;gap:4px;align-items:center">${ic('lock', 12)}قفل</span>`}</div>${by}${pass}${fx}</div>`;
   }
 
@@ -4574,7 +4666,7 @@ function ctxMenu(e, opts) {
       }
     }
 
-    if (D.bpn && nonI('bpn') && D.ins !== 3) ck(en(D.bpn).trim().length !== 9, E, 'شماره گذرنامه ۹ نویسه نیست', 'شماره گذرنامه خریدار رشته ۹ نویسه‌ای است.', '#bpn');
+    if (D.bpn && nonI('bpn') && D.ins === 1) ck(en(D.bpn).trim().length !== 9, E, 'شماره گذرنامه ۹ نویسه نیست', 'شماره گذرنامه خریدار رشته ۹ نویسه‌ای است.', '#bpn');
     if (inp === 14) { // the seller in every subject, and each goods ID on a row of the chain list with this buyer (8-9 row 20, 8-27 row 8)
       ck(!S.seller.chain, E, 'فروشنده در فهرست زنجیره نیست', 'شماره اقتصادی فروشنده باید در فهرست اشخاص زنجیره تبصره ۵ ماده ۱۷ باشد.', '[data-a="prof"]');
       if (D.ins !== 3) { const tb = B ? digits(B.econ) : '';
@@ -4597,7 +4689,7 @@ function ctxMenu(e, opts) {
         if (nonI('dis')) ck(r.dis < 0, E, `${L}: مبلغ تخفیف منفی است`, 'مبلغ تخفیف صفر یا بزرگ‌تر از صفر است.', go('dis'));
         if (nonI('dis')) ck(cr.dis > cr.prdis, E, `${L}: تخفیف از مبلغ بیشتر است`, 'مبلغ تخفیف باید کوچک‌تر یا مساوی مبلغ قبل از تخفیف باشد.', go('dis'));
         if ([7, 11, 14].includes(inp)) ck(r.vra !== 0, E, `${L}: نرخ ارزش افزوده باید صفر باشد`, 'در صادرات، بورس کالا و فروش زنجیره نرخ ارزش افزوده صفر است.', rw);
-        if (S.moa.liab === 'none') ck(r.vra !== 0, E, `${L}: نرخ ارزش افزوده باید صفر باشد`, 'مودی فراخوان‌نشده است؛ نرخ قابل قبول ارزش افزوده در صورتحساب صفر است.', rw);
+        if (S.moa.liab === 'none' && D.ins === 1) ck(r.vra !== 0, E, `${L}: نرخ ارزش افزوده باید صفر باشد`, 'مودی فراخوان‌نشده است؛ نرخ قابل قبول ارزش افزوده در صورتحساب صفر است.', rw);
         if (D.ins !== 1 && r.ref && r.ref.vra != null) ck(r.vra !== r.ref.vra, E, `${L}: نرخ ارزش افزوده با مرجع فرق دارد`, 'نرخ ارزش افزوده در صورتحساب ارجاعی تغییر نمی‌کند؛ برای تغییر نرخ، مرجع را ابطال و صورتحساب جدید صادر کنید.', rw);
         if (inp === 2) {
           ck(!(r.cfee > 0) || !r.cut, E, `${L}: میزان یا نوع ارز وارد نشده`, 'میزان ارز بزرگ‌تر از صفر و نوع ارز با کد ISO 4217 لازم است.', go('cfee'));
@@ -4653,7 +4745,7 @@ function ctxMenu(e, opts) {
     if (D.inty === 2) I.push({ t: 'صورتحساب نوع دوم', d: T2K.join(' ') });
     if (inp === 11) I.push({ t: 'تطابق با اعلامیه فروش بورس', d: 'شناسه کالا، مقدار، واحد و ارزش معامله باید با اعلامیه بخواند؛ وگرنه فروش عادی حساب می‌شود و معافیت نرخ صفر سیستمی ندارد.' });
     if (D.ins === 3) I.push({ t: 'ابطالی', d: 'نوع، الگو، خریدار و همه اقلام بدنه از صورتحساب مرجع واکشی می‌شود و در صورتحساب ابطالی ارسال نمی‌شود.' });
-    if (!art9()) I.push({ t: `مهلت ارسال تا ${fa(jAdd(isNaN(jMs(D.date)) ? TODAY : D.date, DEADLINE_DAYS))}`, d: `${fa(DEADLINE_DAYS)} روز پس از صدور، از تنظیمات؛ پس از نهایی‌سازی خودکار به صف ارسال می‌رود.` });
+    if (!art9()) I.push({ t: `مهلت ارسال تا ${fa(jAdd(isNaN(jMs(D.date)) ? TODAY : D.date, DEADLINE_DAYS))}`, d: `${fa(DEADLINE_DAYS)} روز پس از صدور، از تنظیمات؛ ${typeof SRV !== 'undefined' && SRV.autoSend() ? 'پس از نهایی‌سازی خودکار به صف ارسال می‌رود.' : 'پس از نهایی‌سازی در «سامانه مودیان» آماده ارسال می‌ماند.'}` });
     const src = D.rows.filter(r => r.src);
     if (src.length && D.ins === 1) { const df = src.filter(r => r.am !== r.src.am || r.fee !== r.src.fee || r.dis !== r.src.dis);
       I.push({ t: 'تطبیق با پیش‌فاکتور', d: df.length ? df.map(r => `ردیف ${fa(D.rows.indexOf(r) + 1)} با پیش‌فاکتور فرق دارد (${r.am !== r.src.am ? `مقدار ${fq(r.src.am)} در پیش‌فاکتور` : 'مبلغ یا تخفیف تغییر کرده'}).`).join(' ') : `هر ${fa(src.length)} ردیف با فایل پیوست می‌خوانند؛ مبلغ‌ها را یک بار مرور کنید.`, pdf: 1 }); }
@@ -4668,22 +4760,23 @@ function ctxMenu(e, opts) {
   };
   const tok = (k, label, lock) => `<button class="tk${lock ? ' lk2' : ''}" data-a="o" data-o="${k}"${lock || D.done ? ' disabled' : ''}>${label}${ic(lock ? 'lock' : 'down', 14)}</button>`;
   function render() {
+    if (typeof SRV !== 'undefined') { SRV.clock(); if (D.done && !invByNo(D.done.no)) D = fresh(); else if (!D.done && SRV.isDefault(D.date, D.time)) { D.date = TODAY; D.time = NOW; } }
     const fin = !!D.done, refLock = D.ins !== 1 && !!D.ref;
     const steps = [['ترکیب الگو', 'd'], ['اقلام و کنترل', fin ? 'd' : 'c'], ['نهایی‌سازی', fin ? 'd' : ''], ['ارسال به سامانه', fin ? 'c' : '']];
     const T = totals(), src = D.rows.filter(r => r.src).length;
     const addOk = !fin && D.ins === 1 && !([11, 14].includes(D.inp) && D.rows.length >= 1);
     return `<div class="pg-new">
       <section class="card head rv" style="--r:0" data-note="1">
-        <div class="hd-t"><div><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><div class="t24">${fin ? `صورتحساب ${D.done.no}` : `صورتحساب ${D.ins === 1 ? 'جدید' : SUBJ[D.ins]}`}</div>${fin ? chip('neu', 'در صف ارسال') : chip('neu', 'پیش‌نویس', 'off')}</div><div class="t13 c3" id="saved">${fin ? `نهایی شده، امضا با حافظه ${CO.mem}` : `ذخیره خودکار ${D.saved}`}</div></div>
+        <div class="hd-t"><div><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><div class="t24">${fin ? `صورتحساب ${invNo(invByNo(D.done.no) || D.done)}` : `صورتحساب ${D.ins === 1 ? 'جدید' : SUBJ[D.ins]}`}</div>${fin ? ((invByNo(D.done.no) || {}).send === 'held' ? chip('warn', 'آماده ارسال') : chip('neu', 'در صف ارسال')) : chip('neu', 'پیش‌نویس', 'off')}</div><div class="t13 c3" id="saved">${fin ? ((invByNo(D.done.no) || {}).send === 'held' ? 'نهایی شده؛ در «سامانه مودیان» آماده ارسال' : `نهایی شده، امضا با حافظه ${CO.mem}`) : `ذخیره خودکار ${D.saved}`}</div></div>
           <div class="steps" id="steps">${steps.map(s => `<button class="s ${s[1]}" data-a="step"><i></i>${s[0]}</button>`).join('')}</div></div>
         <div class="line"><span>این صورتحساب</span>${tok('inty', OPT.inty[D.inty - 1][1], refLock)}<span>با الگوی</span>${tok('pat', patName(D.inp), refLock)}
           <span>و موضوع</span>${tok('ins', SUBJ[D.ins])}${nonI('setm') ? `<span>است و تسویه آن</span>${tok('setm', SETM[D.setm], D.ins === 3)}<span>انجام می‌شود.</span>` : '<span>است؛ در نوع دوم کل مبلغ نقدی تلقی می‌شود.</span>'}</div>
         <div class="fg">
           <div class="in${art9() ? ' warn' : ''}"><label for="ndt">تاریخ و ساعت صدور <em>*</em></label><input id="ndt" value="${fa(D.time ? `${D.date}، ${D.time}` : D.date)}" style="direction:ltr;text-align:right" aria-label="تاریخ صدور"${fin ? ' readonly' : ''}><button class="ib sm" data-a="dates" aria-label="تاریخ‌های پیشنهادی"${fin ? ' disabled' : ''}>${ic('cal', 14)}</button></div>
-          <div class="in ro"><label>شماره صورتحساب</label><span class="t13">${fin ? fa(D.done.no) : 'هنگام نهایی‌سازی'}</span>${ic('lock', 14)}</div>
+          <div class="in ro"><label>شماره صورتحساب</label><span class="t13">${fin ? fa(invNo(invByNo(D.done.no) || D.done)) : 'هنگام نهایی‌سازی'}</span>${ic('lock', 14)}</div>
           <div class="in ro"><label>قاعده ارسال</label><span class="t13">${art9() ? `ماده ۹؛ ثبت ${fa(TODAY)}` : 'در مهلت مجاز'}</span>${ic(art9() ? 'warn' : 'clock', 14)}</div>
           ${D.ins !== 1 ? `<div class="in${D.ref ? '' : ' need'}" id="refb" role="button" tabindex="0" data-a="ref" style="cursor:pointer"><label>صورتحساب مرجع <em>*</em></label><span class="t13">${D.ref ? `${fa(D.ref.ino)}، ${fa(D.ref.date)}` : 'انتخاب صورتحساب مرجع'}</span>${ic('down', 14)}</div>`
-            : `<div class="in ro"><label>شماره مالیاتی</label><span class="t13">هنگام نهایی‌سازی ساخته می‌شود</span>${ic('lock', 14)}</div>`}
+            : `<div class="in ro"><label>شماره مالیاتی</label><span class="${fin ? 'lat t13' : 't13'}">${fin ? taxParts(invByNo(D.done.no) || { no: D.done.no, date: D.date }).join('') : 'هنگام نهایی‌سازی ساخته می‌شود'}</span>${ic('lock', 14)}</div>`}
         </div>
         ${D.ref ? `<div class="refn">${ic('journal', 14)}<span>مرجع: <span class="lat">${D.ref.tax}</span>، ${D.ref.buyer}. نوع، الگو، خریدار، شناسه کالا و نرخ مالیات از مرجع قفل شده است${D.ins === 4 ? '؛ فقط مقدار کم می‌شود' : D.ins === 2 ? '؛ ردیف با شناسه جدید اضافه نمی‌شود' : ''}.</span></div>` : ''}
         <div id="pcard" class="pcf" data-note="3">${patCard()}</div>
@@ -4692,7 +4785,7 @@ function ctxMenu(e, opts) {
       <section class="card parties rv" style="--r:1" data-note="2" id="parties">${partiesHtml()}</section>
 
 
-      ${fin ? `<section class="card done-b" id="doneb">${dot('neu')}<div style="flex:1;min-width:220px"><div class="w5">صورتحساب ${D.done.no} نهایی شد و در صف ارسال است</div><div class="t13 c3">شماره مالیاتی ${taxCode({ no: D.done.no, date: D.date })}</div></div><button class="btn sm" data-a="seeinv">دیدن در فهرست</button><button class="btn sm pri" data-a="again">${ic('plus', 14)}صورتحساب جدید</button></section>` : ''}
+      ${fin ? `<section class="card done-b" id="doneb">${dot('neu')}<div style="flex:1;min-width:220px"><div class="w5">صورتحساب ${invNo(invByNo(D.done.no) || D.done)} نهایی شد و ${(invByNo(D.done.no) || {}).send === 'held' ? 'در «سامانه مودیان» آماده ارسال است' : 'در صف ارسال است'}</div><div class="t13 c3">شماره مالیاتی ${taxCode(invByNo(D.done.no) || { no: D.done.no, date: D.date })}</div></div><button class="btn sm" data-a="seeinv">دیدن در فهرست</button><button class="btn sm pri" data-a="again">${ic('plus', 14)}صورتحساب جدید</button></section>` : ''}
 
       <section class="card it rv" style="--r:3" data-note="4">
         <div class="c-h"><div><div class="c-t">اقلام صورتحساب</div><div class="t12 c3">ستون‌ها از ${PAT[D.inp].o} ساخته شده‌اند؛ اقلام اختیاری و شرطی هر ردیف در جزئیات آن است.</div></div>
@@ -4766,6 +4859,7 @@ function ctxMenu(e, opts) {
         [['adis', c.adis], ['prdis', D.inp === 3 ? c.prdis + c.tcpbs : c.prdis], ['vam', c.vam], ['tsstam', c.tsstam]].forEach(([k, v]) => { const x = $(`[data-c="${k}"]`, el); if (x && document.activeElement !== x) { x.innerHTML = tabify(num(v)); x.classList.add('tick'); setTimeout(() => x.classList.remove('tick'), 400); } });
         const ss = $('[data-f="ssrv"]', el); if (ss && document.activeElement !== ss) ss.value = r.ssrv ? num(r.ssrv) : '';
         const ds = D.ins === 4 && $('[data-f="dis"]', el); if (ds && document.activeElement !== ds) ds.value = nval(r, 'dis');
+        if (D.ins === 4) for (const f of ['consfee', 'spro', 'bros']) { const fi = $(`[data-f="${f}"]`, el); if (fi && document.activeElement !== fi) fi.value = nval(r, f); }
         const x = $(`.lx[data-x="${changedId}"]`, root); if (x && r.open) $$('.xf[data-xk]', x).forEach(el => { if (!el.contains(document.activeElement)) { const n = html(extraHtml(r, c, el.dataset.xk)); el.replaceWith(n); } });
       }
     }
@@ -4837,13 +4931,15 @@ function ctxMenu(e, opts) {
     $$('.refi', d.box).forEach(b => b.onclick = () => { const no = +b.dataset.no; applyRef(no); d.close(); toast({ k: 'ok', t: `صورتحساب ${fa(invNo(invByNo(no)))} به عنوان مرجع انتخاب شد`, b: 'خریدار، نوع، الگو و اقلام از مرجع خوانده شد.' }); });
     hyd(d.box);
   }
+  // a server invoice read from another browser keeps its wire header: its pattern items in this page's own form
+  const pfOfHeader = h => { const o = {}; PF.forEach(k => { const x = h[k]; if (x === undefined || x === null || x === '') return; o[k] = FM[k] && FM[k].date ? SRV.jd(Number(x) * 86400000) : FM[k] && FM[k].sel ? x : String(x); }); if (Array.isArray(h.sg)) o.sg = h.sg.map(g => ({ sgid: String(g.sgid || '').replace(/[<>"`]/g, ''), sgt: String(g.sgt || '').replace(/[<>"`]/g, '') })); return o; };
   function applyRef(no) {
     const v = invByNo(no), p = partyByName(v.buyer);
-    const pf = JSON.parse(JSON.stringify(v.pf || {})); // the pattern's own header items come from the reference too (8-8 rows 5 and 6)
+    const pf = JSON.parse(JSON.stringify(v.pf || (v.srvHeader ? pfOfHeader(v.srvHeader) : {}))); // the pattern's own header items come from the reference too (8-8 rows 5 and 6)
     D.ref = { no, ino: invNo(v), date: v.date, time: v.time || '', ms: jMs(v.date, v.time || '00:00'), buyer: v.buyer, tax: taxParts(v).join(''), cdcd: pf.cdcd || '', rows: refItems(v).map(refRow) };
     D.buyer = p ? p.id : null; D.pf = pf;
     // discount and VAT rate stay as in the reference (5-2 note 1, 5-4 notes 3 and 5)
-    D.rows = D.ref.rows.map(x => { const { vra, ...o } = x, r = row(x.sstid, vra == null ? o : { ...o, vra }); r.ref = { am: x.am, fee: x.fee, dis: x.dis, vra }; return r; });
+    D.rows = D.ref.rows.map(x => { const { vra, ...o } = x, r = row(x.sstid, vra == null ? o : { ...o, vra }); r.ref = { am: x.am, fee: x.fee, dis: x.dis, vra, consfee: x.consfee, spro: x.spro, bros: x.bros }; return r; });
     rerender(rootEl);
   }
 
@@ -4948,7 +5044,7 @@ function ctxMenu(e, opts) {
     put('inty', D.inty); put('inno', (0x4A1E0 + no).toString(16).toUpperCase().padStart(10, '0')); if (D.ref) put('irtaxid', D.ref.tax); put('inp', D.inp); put('ins', D.ins); put('tins', S.seller.econ);
     if (B && B.tob && D.ins === 1) { put('tob', B.tob); put('bid', digits(B.nid)); put('tinb', digits(B.econ)); }
     put('sbc', D.sbc); if (B && B.tob && D.ins === 1) { put('bpc', digits(B.postal)); put('bbc', B.bbc); }
-    if (D.bpn) put('bpn', en(D.bpn).trim());
+    if (D.bpn && D.ins === 1) put('bpn', en(D.bpn).trim());
     PF.forEach(k => { let v = D.pf[k]; if (empty(v) || (D.ins !== 1 && k === 'billid')) return; if (FM[k].date) v = unixDay(v); else if (FM[k].sel) v = typeof v === 'number' ? v : String(v); put(k, k === 'cdcd' || k === 'asd' || k === 'ft' || k === 'lt' ? +v : String(v)); });
     if (nonI('sg') && D.pf.sg) h.sg = D.pf.sg.map(g => ({ sgid: digits(g.sgid), sgt: g.sgt }));
     ['tprdis', 'tdis', 'tadis', 'tvam', 'todam', 'tbill', 'tonw', 'torv', 'tocv'].forEach(k => { if (stOf(k, c) !== 'I' && !(k === 'tonw' && !T.tonw)) h[k] = T[k]; }); // total net weight is optional when only services are exported (8-19 row 4)
@@ -4970,38 +5066,36 @@ function ctxMenu(e, opts) {
   function finalize(root) {
     const R = rules();
     if (R.E.length) { const b = $('#fin', root); b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); const rc = $('#rulesc', root); flash(rc); rc.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); return toast({ k: 'bad', t: 'نهایی‌سازی ممکن نیست', b: R.E[0].t }); }
-    const T = totals(), B = buyer(), no = Math.max(...S.inv.map(v => v.no)) + 1, tax = taxIdParts(CO.mem, D.date, 0x4A1E0 + no), J = invoiceJson(no, tax.join(''));
-    const d = dialog(`<div class="dh"><div><div class="t12 c3">پیش‌نمایش پیش از نهایی‌سازی</div><div class="t18 w5" style="margin-top:4px">صورتحساب ${no}${B ? `، ${B.n}` : ''}</div></div><button class="ib" data-close aria-label="بستن">${ic('x', 14)}</button></div>
+    const T = totals(), B = buyer(), no = Math.max(...S.inv.map(v => v.no)) + 1, tax = taxIdParts(CO.mem, D.date, 0x4A1E0 + no, D.time), J = invoiceJson(no, tax.join(''));
+    const d = dialog(`<div class="dh"><div><div class="t12 c3">پیش‌نمایش پیش از نهایی‌سازی</div><div class="t18 w5" style="margin-top:4px">${typeof SRV !== 'undefined' && SRV.on() ? 'صورتحساب جدید' : `صورتحساب ${no}`}${B ? `، ${B.n}` : ''}</div></div><button class="ib" data-close aria-label="بستن">${ic('x', 14)}</button></div>
       <div class="db fz" id="fzb"><div class="seg fzt"><button class="on" data-v="s">خلاصه</button><button data-v="j">ساختار ارسالی، JSON</button></div>
         <div id="fzs"><div class="kv"><b>نوع و الگو</b><span>${patLabel(D.inty, D.inp)}، ${PAT[D.inp].o}</span></div><div class="kv"><b>موضوع</b><span>${SUBJ[D.ins]}${D.ref ? `، مرجع ${fa(D.ref.ino)}` : ''}</span></div>
           <div class="kv"><b>تسویه</b><span>${nonI('setm') ? SETM[D.setm] : 'نقدی، نوع دوم'}</span></div><div class="kv"><b>فروشنده</b><span>${S.seller.name}، شعبه ${fa(D.sbc)}</span></div>
           <div class="kv"><b>اقلام</b><span>${fa(D.rows.length)} ردیف</span></div><div class="kv"><b>مالیات</b><span class="n">${num(T.tvam)}</span></div>
           <div class="kv"><b>مبلغ کل</b><span class="t18 n cp">${num(T.tbill)}</span></div>${art9() ? `<div class="kv"><b>قاعده ارسال</b><span>ماده ۹، قاعده ۱ و تاریخ ثبت ${fa(TODAY)}</span></div>` : ''}
-          <div class="ai" style="margin-top:16px"><span class="fleck"></span><span>بعد از تأیید، شماره ${no} و شماره مالیاتی ۲۲ نویسه‌ای ساخته می‌شود، ${typeof SRV !== 'undefined' && SRV.on() && !(SRV.sending() && SRV.sending().auto) ? 'صورتحساب در «سامانه مودیان» آماده ارسال می‌ماند؛ امضا و رمز هنگام ارسال انجام می‌شود' : `صورتحساب با کلید خصوصی حافظه <span class="lat">${CO.mem}</span> امضا و رمز می‌شود و به صف ارسال می‌رود`}.</span></div></div>
-        <div id="fzj" hidden><div class="t12 c3" style="margin-bottom:8px">فقط اقلامی که در ${PAT[D.inp].o} خارج از الگو نیستند و مقدار دارند ارسال می‌شوند. تاریخ‌ها به میلی‌ثانیه یونیکس.</div><pre class="json lat">${jsonHtml(J)}</pre></div></div>
-      <div class="df" id="fzf"><button class="btn pri" id="fzgo">${ic('lock', 16)}نهایی‌سازی و ارسال</button><button class="btn" data-close>بازگشت به ویرایش</button><button class="btn plain" id="fzcp" style="margin-inline-start:auto">${ic('copy', 14)}کپی JSON</button></div>`, { label: 'نهایی‌سازی', cls: 'fzd' });
+          <div class="ai" style="margin-top:16px"><span class="fleck"></span><span>بعد از تأیید، ${typeof SRV !== 'undefined' && SRV.on() ? 'شماره صورتحساب (از سرور لاجورد)' : `شماره ${no}`} و شماره مالیاتی ۲۲ نویسه‌ای ساخته می‌شود، ${typeof SRV !== 'undefined' && SRV.autoSend() ? `صورتحساب با کلید خصوصی حافظه <span class="lat">${CO.mem}</span> امضا و رمز می‌شود و به صف ارسال می‌رود` : 'صورتحساب در «سامانه مودیان» آماده ارسال می‌ماند؛ امضا و رمز هنگام ارسال انجام می‌شود'}.</span></div></div>
+        <div id="fzj" hidden><div class="t12 c3" style="margin-bottom:8px">فقط اقلامی که در ${PAT[D.inp].o} خارج از الگو نیستند و مقدار دارند ارسال می‌شوند. تاریخ‌ها به میلی‌ثانیه یونیکس.${typeof SRV !== 'undefined' && SRV.on() ? ' شماره صورتحساب و شماره مالیاتی نهایی را سرور لاجورد هنگام صدور می‌دهد.' : ''}</div><pre class="json lat">${jsonHtml(J)}</pre></div></div>
+      <div class="df" id="fzf"><button class="btn pri" id="fzgo">${ic('lock', 16)}${typeof SRV !== 'undefined' && SRV.autoSend() ? 'نهایی‌سازی و ارسال' : 'نهایی‌سازی و صدور'}</button><button class="btn" data-close>بازگشت به ویرایش</button><button class="btn plain" id="fzcp" style="margin-inline-start:auto">${ic('copy', 14)}کپی JSON</button></div>`, { label: 'نهایی‌سازی', cls: 'fzd' });
     $$('.fzt button', d.box).forEach(b => b.onclick = () => { $$('.fzt button', d.box).forEach(x => x.classList.toggle('on', x === b)); $('#fzs', d.box).hidden = b.dataset.v !== 's'; $('#fzj', d.box).hidden = b.dataset.v !== 'j'; });
     $('#fzcp', d.box).onclick = () => copy(JSON.stringify(J), 'ساختار JSON کپی شد');
     $('#fzgo').onclick = async () => {
       if (SRV.on()) return srvSend(d, J, no, B, T);
-      const steps = [`تخصیص شماره ${no}`, 'ساخت شماره مالیاتی', `امضا با کلید خصوصی حافظه ${CO.mem}`, 'قرار گرفتن در صف ارسال'];
+      const steps = [`تخصیص شماره ${no}`, 'ساخت شماره مالیاتی', 'افزودن به «سامانه مودیان»'];
       const ck = '<svg width="14" height="14" viewBox="0 0 24 24" class="i" style="stroke-width:2.4"><path d="M20 6 9 17l-5-5"/></svg>';
       $('#fzf').innerHTML = ''; const body = $('#fzb');
       body.innerHTML = steps.map((s, i) => `<div class="st" data-s="${i}"><span class="ck">${ck}</span><span>${fa(s)}</span><span class="t12 c3" data-x="${i}"></span></div>`).join('');
       for (let i = 0; i < steps.length; i++) { const el = $(`.st[data-s="${i}"]`, body); el.classList.add('on'); await wait(620 + i * 120); el.classList.remove('on'); el.classList.add('ok');
         if (i === 1) $('[data-x="1"]', body).innerHTML = `<span class="code" style="font-size:12px">${tax.join(' ')}</span>`; }
       await wait(250);
-      body.innerHTML = `<div style="text-align:center;padding:8px 0 4px"><div class="big"><svg width="30" height="30" viewBox="0 0 24 24" class="i" style="stroke-width:2.2"><path d="M20 6 9 17l-5-5"/></svg></div><div class="t18 w5">صورتحساب ${fa(no)} نهایی شد</div><div class="t13 c3" style="margin-top:4px">در صف ارسال است؛ نتیجه سامانه را همین‌جا خبر می‌دهیم.</div></div>`;
-      $('#fzf').innerHTML = `<button class="btn pri" id="fzsee">دیدن در فهرست</button><button class="btn" data-close>ماندن در همین صفحه</button>`;
-      const inv = { no, buyer: B ? B.n : 'بدون خریدار', date: D.date, kind: B ? (B.tob ? TOB[B.tob] : 'خارجی') : 'بدون خریدار', type: patLabel(D.inty, D.inp), inty: D.inty, inp: D.inp, setm: nonI('setm') ? D.setm : null, pid: B ? B.id : null, total: T.tbill, tax: T.tvam, send: 'queue', react: null, tag: D.ins !== 1 ? SUBJ[D.ins] : undefined,
+      body.innerHTML = `<div style="text-align:center;padding:8px 0 4px"><div class="big"><svg width="30" height="30" viewBox="0 0 24 24" class="i" style="stroke-width:2.2"><path d="M20 6 9 17l-5-5"/></svg></div><div class="t18 w5">صورتحساب ${fa(no)} نهایی شد</div><div class="t13 c3" style="margin-top:4px">شماره مالیاتی <span class="lat">${tax.join('')}</span>؛ در «سامانه مودیان» آماده ارسال است. ارسال به سامانه مرحله بعد است، پس از ثبت کلید خصوصی در «تنظیمات ← اتصال برای ارسال».</div><div class="t12 c3" style="margin-top:6px">مهلت ارسال ${fa(DEADLINE_DAYS)} روز از تاریخ صدور است (ماده ۹).</div></div>`;
+      $('#fzf').innerHTML = `<button class="btn pri" id="fzmoa">رفتن به «سامانه مودیان»</button><button class="btn" id="fzsee">دیدن در فهرست</button><button class="btn" data-close>ماندن در همین صفحه</button>`;
+      const inv = { no, buyer: B ? B.n : 'بدون خریدار', date: D.date, kind: B ? (B.tob ? TOB[B.tob] : 'خارجی') : 'بدون خریدار', type: patLabel(D.inty, D.inp), inty: D.inty, inp: D.inp, setm: nonI('setm') ? D.setm : null, pid: B ? B.id : null, total: T.tbill, tax: T.tvam, send: 'held', taxid: tax.join(''), react: null, tag: D.ins !== 1 ? SUBJ[D.ins] : undefined,
         // kept for later references: the issue time, the reference this one points to, the pattern's own items and the rows
         time: D.time, ref: D.ref ? D.ref.no : undefined, pf: JSON.parse(JSON.stringify(D.pf || {})), refRows: D.rows.map(({ id, open, src, ref, ...x }) => x) };
       S.inv.push(inv); S.finalized = no; D.done = { no }; emit('state');
       $('#fzsee').onclick = () => { d.close(); go('invoices', { peek: no }); };
+      $('#fzmoa').onclick = () => { d.close(); go('moadian'); };
       if (current === 'new-invoice') { const pg = $('#page'); pg.innerHTML = render(); hyd(pg); bind(pg); }
-      const noReact = D.inty === 2 || !B || !B.tob || D.ins === 3;
-      setTimeout(() => { inv.send = 'prog'; emit('state'); }, 5000);
-      setTimeout(() => { inv.send = 'ok'; inv.react = noReact ? { k: 'na' } : { k: 'wait', d: 0 }; S.sent.ok++; if (inv.tag === 'ابطالی') { const rf = invByNo(inv.ref); if (rf) rf.send = 'void'; } /* a registered cancelling invoice voids its reference */ emit('state'); toast({ k: 'ok', t: `صورتحساب ${fa(no)} در سامانه مودیان ثبت شد`, b: noReact ? 'وضعیت SUCCESS؛ واکنش خریدار لازم نیست.' : 'وضعیت SUCCESS؛ منتظر واکنش خریدار.', act: { label: 'دیدن', fn: () => go('invoices', { peek: no }) } }); }, 10000);
     };
   }
 
@@ -5009,14 +5103,17 @@ function ctxMenu(e, opts) {
      the serial and the tax ID, signs, encrypts and queues it; the result of the tax system comes back by status. */
   async function srvSend(d, J, no, B, T) {
     const body = $('#fzb'), foot = $('#fzf'), E = SRV.esc;
-    const steps = ['ارسال به سرور لاجورد', 'کنترل با قواعد دستورالعمل', 'سریال و شماره مالیاتی', SRV.sending() && SRV.sending().auto ? 'امضا، رمز و صف ارسال' : 'افزودن به «سامانه مودیان»'];
+    const steps = ['ارسال به سرور لاجورد', 'کنترل با قواعد دستورالعمل', 'سریال و شماره مالیاتی', SRV.autoSend() ? 'امضا، رمز و صف ارسال' : 'افزودن به «سامانه مودیان»'];
     const ck = '<svg width="14" height="14" viewBox="0 0 24 24" class="i" style="stroke-width:2.4"><path d="M20 6 9 17l-5-5"/></svg>';
     foot.innerHTML = '';
     body.innerHTML = steps.map((s, i) => `<div class="st" data-s="${i}"><span class="ck">${ck}</span><span>${fa(s)}</span><span class="t12 c3" data-x="${i}"></span></div>`).join('');
     const mark = (i, on) => { const el = $(`.st[data-s="${i}"]`, body); if (!el) return; el.classList.toggle('on', on); if (!on) el.classList.add('ok'); };
     mark(0, true);
     let x;
-    try { x = await SRV.issue(J, D, B, no); }
+    // one key per draft: finalizing it again (a lost answer, a retried click, a new dialog) returns the invoice already
+    // issued; a new draft gets a new key (fresh() has none)
+    D.ikey = D.ikey || SRV.newKey();
+    try { x = await SRV.issue(J, D, B, D.ikey); }
     catch (e) {
       const errs = (e.body && e.body.errors) || [], warns = (e.body && e.body.warnings) || [];
       const list = errs.length ? `<div class="srv-errs">${errs.slice(0, 30).map(r => `<div class="srv-e"><span class="lat">${E(r.code)}</span><span>${E(r.message)}</span><span class="t12 c3">${E(r.rule || '')}</span></div>`).join('')}</div>` : '';
@@ -5028,24 +5125,33 @@ function ctxMenu(e, opts) {
     for (let i = 0; i < steps.length; i++) { mark(i, true); await wait(260); mark(i, false); if (i === 2) $('[data-x="2"]', body).innerHTML = `<span class="code" style="font-size:12px">${E(x.taxid)}</span>`; }
     const warns = x.warnings || [], held = x.state === 'held';
     body.innerHTML = `<div style="text-align:center;padding:8px 0 4px"><div class="big"><svg width="30" height="30" viewBox="0 0 24 24" class="i" style="stroke-width:2.2"><path d="M20 6 9 17l-5-5"/></svg></div>
-      <div class="t18 w5">صورتحساب ${fa(no)} روی سرور صادر شد</div>
+      <div class="t18 w5">صورتحساب ${fa(x.serial ?? no)} روی سرور صادر شد</div>
       <div class="t13 c3" style="margin-top:4px">شماره مالیاتی <span class="lat">${E(x.taxid)}</span>؛ ${held ? `در «سامانه مودیان» آماده ارسال است. ${SRV.hasKey() ? 'هر وقت خواستید از همان‌جا، تکی یا گروهی، به سامانه بفرستید.' : 'ارسال به سامانه پس از تکمیل «اتصال برای ارسال» (مرحله بعد) از همان‌جا انجام می‌شود.'}` : `در صف ارسال به ${SRV.mode() === 'live' ? 'سامانه مودیان' : 'محیط آزمایشی سامانه مودیان'} است و نتیجه را همین‌جا خبر می‌دهیم.`}</div>
       ${held ? `<div class="t12 c3" style="margin-top:6px">مهلت ارسال ${fa(DEADLINE_DAYS)} روز از تاریخ صدور است (ماده ۹).</div>` : ''}
       ${warns.length ? `<div class="t12 cwarn" style="margin-top:8px">${fa(warns.length)} هشدار دستورالعمل؛ در صفحه صورتحساب دیده می‌شود.</div>` : ''}</div>`;
     // without the key (the connection is the next stage) there is nothing to send yet: no «ارسال همین حالا»
     const canSend = SRV.hasKey();
+    // the page number: the list read from the server may have taken it meanwhile (right after sign-in), or may already
+    // hold this very invoice; one invoice, one page number
+    const was = S.inv.find(v => v.srv && v.srv.id === x.id);
+    if (was) { no = was.no; S.inv.splice(S.inv.indexOf(was), 1); }
+    else if (invByNo(no)) no = Math.max(...S.inv.map(v => Number(v.no) || 0)) + 1;
     foot.innerHTML = held ? (canSend ? '<button class="btn pri" id="fzsend">ارسال همین حالا</button>' : '') + '<button class="btn' + (canSend ? '' : ' pri') + '" id="fzmoa">رفتن به «سامانه مودیان»</button><button class="btn" data-close>ماندن در همین صفحه</button>'
       : '<button class="btn pri" id="fzsee">دیدن در فهرست</button><button class="btn" data-close>ماندن در همین صفحه</button>';
     const inv = { no, buyer: B ? B.n : 'بدون خریدار', date: D.date, kind: B ? (B.tob ? TOB[B.tob] : 'خارجی') : 'بدون خریدار', type: patLabel(D.inty, D.inp), inty: D.inty, inp: D.inp, setm: nonI('setm') ? D.setm : null, pid: B ? B.id : null, total: T.tbill, tax: T.tvam, send: 'queue', react: null, tag: D.ins !== 1 ? SUBJ[D.ins] : undefined,
       time: D.time, ref: D.ref ? D.ref.no : undefined, pf: JSON.parse(JSON.stringify(D.pf || {})), refRows: D.rows.map(({ id, open, src, ref, ...r }) => r),
       taxid: x.taxid, mem: x.taxid.slice(0, 6), srv: { id: x.id, state: x.state, reaction: null, errors: [], warnings: warns } };
+    // the number shown everywhere is the server's serial (the one inside the tax ID and in «سامانه مودیان»), and the date
+    // and time are the server's issue time
+    if (x.serial != null) inv.ino = x.serial;
+    if (x.issuedAt) { const dd = SRV.jd(x.issuedAt), tt = SRV.jt(x.issuedAt); if (dd) inv.date = dd; if (tt) inv.time = tt; }
     if (held) inv.send = 'held';
     S.inv.push(inv); S.finalized = no; D.done = { no }; emit('state'); SRV.track(inv);
     if (held) {
       $('#fzmoa').onclick = () => { d.close(); go('moadian'); };
       if ($('#fzsend')) $('#fzsend').onclick = async e => {
         const b = e.currentTarget; b.classList.add('busy');
-        try { await SRV.sendNow([x.id]); d.close(); toast({ k: 'ok', t: `صورتحساب ${fa(no)} به سامانه ارسال شد`, b: 'نتیجه را همین‌جا و در «سامانه مودیان» خبر می‌دهیم.' }); }
+        try { await SRV.sendNow([x.id]); d.close(); toast({ k: 'ok', t: `صورتحساب ${fa(invNo(inv))} به سامانه ارسال شد`, b: 'نتیجه را همین‌جا و در «سامانه مودیان» خبر می‌دهیم.' }); }
         catch (er) { toast({ k: 'bad', t: 'ارسال انجام نشد', b: E(er.message) }); }
         finally { b.classList.remove('busy'); }
       };
@@ -5063,7 +5169,7 @@ function ctxMenu(e, opts) {
         const rw = t.closest('[data-id],[data-x]'), id = +(rw.dataset.id || rw.dataset.x), r = D.rows.find(x => x.id === id), k = t.dataset.f;
         if (['sstt', 'odt', 'olt'].includes(k)) r[k] = t.value; else if (k === 'bsrn') r[k] = digits(t.value); else r[k] = parseNum(t.value);
         if (k === 'ssrv') r.ssrvM = 1;
-        if (k === 'am' && D.ins === 4 && r.ref) r.dis = r.ref.am ? mulT(r.ref.dis || 0, r.am, r.ref.am) : 0; // return: the discount follows the quantity kept (5-4 note 5)
+        if (k === 'am' && D.ins === 4 && r.ref) { const pr = v => (r.ref.am ? mulT(v || 0, r.am, r.ref.am) : 0); r.dis = pr(r.ref.dis); for (const f of ['consfee', 'spro', 'bros']) if (r.ref[f]) r[f] = pr(r.ref[f]); } // return: these follow the quantity kept (5-4 note 5)
         if (D.inp === 7 && (k === 'sscv' || k === 'exr') && !r.ssrvM) r.ssrv = mulT(r.sscv || 0, r.exr || 0);
         update(root, id); return;
       }
@@ -5123,7 +5229,7 @@ function ctxMenu(e, opts) {
         case 'prof': return go('profile');
         case 'ref': return refPicker();
         case 'branch': return menu(b, { head: 'شعبه فروشنده، کد ۴ رقمی ثبت‌نام الکترونیک', width: 320, items: BRANCHES.map(o => ({ label: `${o.n}، کد ${fa(o.c)}`, sub: o.addr, checked: D.sbc === o.c, fn: () => { D.sbc = o.c; const pr = $('#parties', root); pr.innerHTML = partiesHtml(); hyd(pr); autosave(root); } })) });
-        case 'dates': return menu(b, { head: 'تاریخ صدور', width: 300, items: [{ label: `امروز، ${fa(TODAY)}`, sub: 'ساعت ۱۲:۱۰', checked: D.date === TODAY, fn: () => { D.date = TODAY; D.time = NOW; rerender(root, true); } }, { label: `دیروز، ${fa('1405/08/17')}`, sub: 'در مهلت مجاز ارسال', fn: () => { D.date = '1405/08/17'; D.time = '16:40'; rerender(root, true); } }, { label: `${fa('1405/08/02')}`, sub: 'بیش از مهلت مجاز؛ موضوع ماده ۹', fn: () => { D.date = '1405/08/02'; D.time = '10:20'; rerender(root, true); } }, { label: `${fa('1405/08/21')}`, sub: 'تاریخ آینده؛ پذیرفته نمی‌شود', fn: () => { D.date = '1405/08/21'; D.time = '09:00'; rerender(root, true); } }] });
+        case 'dates': { const back = n => SRV.jd(jMs(TODAY, '12:00') - n * 86400000), d1 = back(1), dOld = back(DEADLINE_DAYS + 9), dF = jAdd(TODAY, 3); return menu(b, { head: 'تاریخ صدور', width: 300, items: [{ label: `امروز، ${fa(TODAY)}`, sub: `ساعت ${fa(NOW)}`, checked: D.date === TODAY, fn: () => { D.date = TODAY; D.time = NOW; rerender(root, true); } }, { label: `دیروز، ${fa(d1)}`, sub: 'در مهلت مجاز ارسال', fn: () => { D.date = d1; D.time = '16:40'; rerender(root, true); } }, { label: `${fa(dOld)}`, sub: 'بیش از مهلت مجاز؛ موضوع ماده ۹', fn: () => { D.date = dOld; D.time = '10:20'; rerender(root, true); } }, { label: `${fa(dF)}`, sub: 'تاریخ آینده؛ پذیرفته نمی‌شود', fn: () => { D.date = dF; D.time = '09:00'; rerender(root, true); } }] }); }
         case 'goto': { const t = $(b.dataset.go, root); if (!t) return; t.scrollIntoView({ block: 'center', behavior: reduced() ? 'auto' : 'smooth' }); const box = t.closest('.pff,.lr,.pty,.in,.card') || t; setTimeout(() => { flash(box); const f = t.matches('input:not([readonly])') ? t : $('input:not([readonly]),button.sel', box); f && f.focus({ preventScroll: true }); }, 380); return; }
         case 'step': { const i = $$('#steps .s', root).indexOf(b); if (i === 0) { flash($('.line', root)); toast({ k: 'neu', t: 'ترکیب الگو انتخاب شده است', b: 'نوع، الگو، موضوع و تسویه را در همین جمله تغییر دهید.' }); } else if (i >= 2 && !D.done) finalize(root); return; }
         case 'addrow': { const p = $('#psq', root); if (p) { p.scrollIntoView({ block: 'center', behavior: 'smooth' }); setTimeout(() => p.focus(), 250); } return; }
@@ -5598,7 +5704,7 @@ function ctxMenu(e, opts) {
       <div class="db"><div class="pfg2">${f('sn', 'نام مودی', s.name, { ro: 1, span: 1, h: 'نام و شناسه ملی را لاجورد هنگام تحویل نرم‌افزار ثبت کرده است و از اینجا تغییر نمی‌کند؛ برای اصلاح با پشتیبانی لاجورد تماس بگیرید.' })}${f('snid', 'شناسه ملی', s.nid, { ro: 1, num: 1 })}${f('secon', 'شماره اقتصادی', s.econ, { req: 1, num: 1, max: 14, h: '۱۱ یا ۱۴ رقم، همان که در کارپوشه ثبت است' })}
         ${f('sreg', 'شماره ثبت', s.reg, { num: 1, max: 12 })}${f('sregd', 'تاریخ ثبت', s.regDate, { num: 1, max: 10, h: 'به شکل ۱۳۹۲/۰۴/۱۱' })}
         ${f('saddr', 'نشانی', s.addr, { req: 1, span: 1 })}${f('spost', 'کد پستی', s.postal, { req: 1, num: 1, max: 10, h: '۱۰ رقم' })}${f('stel', 'تلفن', s.tel, { num: 1 })}${f('sbr', 'کد شعبه اصلی', (BRANCHES.find(b => b.main) || BRANCHES[0]).c, { ro: 1, num: 1, h: 'کد ۴ رقمی شعبه، مطابق ثبت‌نام الکترونیک؛ شعبه‌ها و کدهایشان در بخش «شعبه‌ها» ثبت می‌شود.' })}</div>
-        <div class="needb" style="margin-top:12px"><div class="w5 t13">${ic('shield', 16)}مطابقت با سامانه</div><div class="t13 c2">شماره اقتصادی فروشنده در هر صورتحساب اجباری است و باید با اطلاعات مودی در سامانه مطابقت داشته باشد؛ پس از ذخیره، استعلام خودکار انجام می‌شود.</div></div></div>
+        <div class="needb" style="margin-top:12px"><div class="w5 t13">${ic('shield', 16)}مطابقت با سامانه</div><div class="t13 c2">شماره اقتصادی فروشنده در هر صورتحساب اجباری است و باید با اطلاعات مودی در کارپوشه سامانه یکی باشد؛ این اطلاعات دستی ثبت و روی سرور لاجورد نگه داشته می‌شود.</div></div></div>
       <div class="df"><button class="btn pri" id="ssave">${ic('check', 16)}ذخیره</button><button class="btn" data-close>انصراف</button></div>`, { label: 'ویرایش مودی', cls: 'pform' });
     ['secon', 'spost', 'sreg'].forEach(id => { const e = $('#' + id, d.box); e.addEventListener('input', () => cleanIdField(e)); });
     $('#ssave', d.box).onclick = async () => {
@@ -5609,7 +5715,7 @@ function ctxMenu(e, opts) {
       if (typeof SRV !== 'undefined' && SRV.on()) { const sb = $('#ssave', d.box); if (sb.classList.contains('busy')) return; sb.classList.add('busy'); try { await SRV.saveSeller(next); } catch (x) { sb.classList.remove('busy'); return toast({ k: 'bad', t: 'اطلاعات مودی روی سرور ذخیره نشد', b: SRV.esc(x.message) }); } }
       Object.assign(S.seller, next);
       CO.econ = econ;
-      d.close(); refresh(); emit('state'); toast({ k: 'ok', t: 'اطلاعات مودی ذخیره شد', b: 'استعلام سامانه: فعال مجاز. صورتحساب‌های بعدی با همین اطلاعات صادر می‌شوند.' });
+      d.close(); refresh(); emit('state'); toast({ k: 'ok', t: 'اطلاعات مودی ذخیره شد', b: typeof SRV !== 'undefined' && SRV.on() ? 'روی سرور لاجورد ذخیره شد؛ صورتحساب‌های بعدی با همین اطلاعات صادر می‌شوند.' : 'در این نمایش ذخیره شد؛ صورتحساب‌های بعدی با همین اطلاعات صادر می‌شوند.' });
     };
   }
   function refresh() { if (!rootEl) return; rootEl.innerHTML = render(); hyd(rootEl); $$('.rv', rootEl).forEach(e => e.classList.remove('rv')); bind(rootEl); }

@@ -8,9 +8,21 @@ Live: https://demo.mouneskhah.com (noindex)
 
 | File | What it is |
 | --- | --- |
-| `index.html` | The whole demo: one self-contained page (HTML, CSS, JavaScript, fonts and images embedded; the only external request is the SheetJS library from cdnjs, loaded when a real Excel file is imported). Persian, RTL. This is the version to serve in production: v13, SHA-256 `64a30f9295073f61447784f708412af6462efb5fb1b499fceed76ff5e92e68e6`, updated 2026-11-19. The previous versions were v12 `109db0b079c0f0bda131cef2df109eb6e22ff1a41632facd32ed57e023ae2d4a`, v11 `ee57372adc09ceec5dadeb08149a96691d47b66fd42d3e1e31ef2706f1333851` and v10 `b4336ed8d17f7acf842a76af74968b62f9a9f86cb6aead413f8d2899bb3fe0e7`. |
+| `index.html` | The whole demo: one self-contained page (HTML, CSS, JavaScript, fonts and images embedded; the only external request is the SheetJS library from cdnjs, loaded when a real Excel file is imported). Persian, RTL. This is the version to serve in production: v13.1, SHA-256 `c1b553360b5bd6c96bb9ed464b28a61b03e44c256ae0a9ec881cf3f252d7d125`, updated 2026-11-19. The previous versions were v13 `64a30f9295073f61447784f708412af6462efb5fb1b499fceed76ff5e92e68e6`, v12 `109db0b079c0f0bda131cef2df109eb6e22ff1a41632facd32ed57e023ae2d4a`, v11 `ee57372adc09ceec5dadeb08149a96691d47b66fd42d3e1e31ef2706f1333851` and v10 `b4336ed8d17f7acf842a76af74968b62f9a9f86cb6aead413f8d2899bb3fe0e7`. |
 | `deploy/nginx-demo.mouneskhah.com.conf` | The nginx site that serves it: static files from `/var/www/demo`, Let's Encrypt certificate, `X-Robots-Tag: noindex, nofollow`, `Cache-Control: no-cache`. It includes `snippets/lajvard-api.conf`. |
 | `deploy/nginx-lajvard-api.snippet.conf` | `/api/` on the same origin, proxied to the Lajvard backend at `127.0.0.1:4317`, with rate limits. The zones `lajvard_api` and `lajvard_login` are in `/etc/nginx/conf.d/lajvard.conf`. Only `/api/` is exposed, so the sandbox simulator is not. |
+
+## v13.1 (2026-11-19)
+
+This version is v13 checked line by line against the client's requests and the e-invoice instruction, by four independent reviews (front end, back end, instruction rules, requests and texts).
+
+- **Invoices are issued and kept ready.** Without a private key, and also in this demo signed out, a finalized invoice stays «آماده ارسال» in «سامانه مودیان». Nothing is shown as signed, sent or registered; sending is the next stage.
+- **«همه صورتحساب‌ها» is the full list.** Signed in, it lists every invoice on the server, with the server's own serial and issue date, the same as «سامانه مودیان». It has no sync of its own; one link leads to «سامانه مودیان».
+- **Signed in, today is the real day** (the issue date, the date menu, Article 9). Signed out, the demo keeps its fixed day.
+- **Server invoices are not stored in the browser.** They come from the server at every sign-in and leave the page at sign-out.
+- **Referring invoices follow the instruction.** No buyer items (Table 10). The reference's VAT rate is kept. A return keeps every per-unit value of the reference and prorates the discount, and in gold the making charge, profit and commission. The tax ID uses the UTC day of the issue moment, as the SDK does.
+- **Texts** no longer say that a key, certificate or sending is needed now.
+- **Tables:** the tax ID on the invoice page wraps inside its row; on phones the «همه صورتحساب‌ها» header lines up with its rows; long status chips stay inside their column.
 
 ## v13 (2026-11-19)
 
